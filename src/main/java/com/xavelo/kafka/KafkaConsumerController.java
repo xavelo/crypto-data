@@ -9,7 +9,6 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.info.GitProperties;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,7 +24,7 @@ public class KafkaConsumerController {
     private GitProperties gitProperties;
 
     @Autowired
-    private KafkaService kafkaService;
+    private KafkaListener kafkaListener;
 
     @GetMapping("/hello")
     public ResponseEntity<Hello> hello() {
