@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: api-kafka-consumer-deployment
   annotations:
-    commitID: "c88e0ebc7097eb02b19e9a20715388205d2f4b03"
+    commitID: "52b77a5329fe576ec2b3a2904a2b83d9eaf79f3f"
 spec:
   replicas: 2s
   selector:
@@ -21,6 +21,6 @@ spec:
     spec:
       containers:
         - name: api-kafka-consumer
-          image: 'xavelo/api-kafka-consumer:c88e0ebc7097eb02b19e9a20715388205d2f4b03'
+          image: 'xavelo/api-kafka-consumer:52b77a5329fe576ec2b3a2904a2b83d9eaf79f3f'
           ports:
             - containerPort: 80
