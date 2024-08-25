@@ -11,10 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.info.GitProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class KafkaConsumerController {
@@ -40,13 +37,11 @@ public class KafkaConsumerController {
         return ResponseEntity.ok(new Hello("hello from pod " + podName, commitId + " - " + commitTime));
     }
 
-    @PostMapping("/consume")
-    public ResponseEntity<String> produce(@RequestBody String topic) {
+    @GetMapping("/consume")
+    public ResponseEntity<String> produce(@RequestParam String topic) {
         kafkaService.consumeTopic(topic);
         return ResponseEntity.ok(topic);
     }
-
-
 
 }
 
