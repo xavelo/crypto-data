@@ -5,7 +5,7 @@ metadata:
   annotations:
     commitID: "9d904eef13fff192a34924ad039b2ab09896f9a4"
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: api-kafka-consumer
