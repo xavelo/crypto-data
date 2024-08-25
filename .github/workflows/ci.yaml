@@ -1,8 +1,8 @@
 name: CI/CD Pipeline
 
 env:
-  GIT_REPO: 'api-kafka-producer'
-  K8S_DEPLOYMENT: 'api-kafka-producer-deployment.yaml'
+  GIT_REPO: 'api-kafka-consumer'
+  K8S_DEPLOYMENT: 'api-kafka-consumer-deployment.yaml'
 
 on:
   push:

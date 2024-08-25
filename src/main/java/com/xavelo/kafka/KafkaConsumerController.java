@@ -17,9 +17,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class KafkaProducerController {
+public class KafkaConsumerController {
 
-    private static final Logger logger = LogManager.getLogger(KafkaProducerController.class);
+    private static final Logger logger = LogManager.getLogger(KafkaConsumerController.class);
 
     @Value("${HOSTNAME:unknown}")
     private String podName;
@@ -40,10 +40,10 @@ public class KafkaProducerController {
         return ResponseEntity.ok(new Hello("hello from pod " + podName, commitId + " - " + commitTime));
     }
 
-    @PostMapping("/produce")
-    public ResponseEntity<Message> produce(@RequestBody Message message) {
-        kafkaService.produceMessage("test-topic", message);
-        return new ResponseEntity<>(message, HttpStatus.CREATED);
+    @PostMapping("/consume")
+    public ResponseEntity<String> produce(@RequestBody String topic) {
+        kafkaService.consumeTopic(topic);
+        return ResponseEntity.ok(topic);
     }
 
 

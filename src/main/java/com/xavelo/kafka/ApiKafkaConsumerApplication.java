@@ -6,10 +6,10 @@ import org.springframework.context.annotation.PropertySource;
 
 @SpringBootApplication
 @PropertySource("classpath:git.properties")
-public class ApiKafkaProducerApplication {
+public class ApiKafkaConsumerApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(ApiKafkaProducerApplication.class, args);
+		SpringApplication.run(ApiKafkaConsumerApplication.class, args);
 	}
 
 }
