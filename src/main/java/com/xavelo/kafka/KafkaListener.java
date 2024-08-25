@@ -18,7 +18,12 @@ public class KafkaListener {
     public void consume(String message) {
         logger.info("Received message: {}", message);
         String sql = "INSERT INTO messages (message) VALUES (?)";
-        mongoTemplate.createCollection("test-topic");
+        checkCollection();
+        // save message
+    }
+
+    private void checkCollection() {
+        if (!mongoTemplate.collectionExists("test-topic")) mongoTemplate.createCollection("test-topic");
     }
 
 }
