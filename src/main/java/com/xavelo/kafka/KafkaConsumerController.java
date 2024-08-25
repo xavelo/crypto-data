@@ -38,7 +38,7 @@ public class KafkaConsumerController {
     }
 
     @GetMapping("/consume")
-    public ResponseEntity<String> produce(@RequestParam String topic) {
+    public ResponseEntity<String> consume(@RequestParam String topic) {
         logger.info("consuming messages from topic {}", topic);
         kafkaService.consumeTopic(topic);
         return ResponseEntity.ok(topic);
