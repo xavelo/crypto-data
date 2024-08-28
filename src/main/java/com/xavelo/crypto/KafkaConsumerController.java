@@ -1,4 +1,4 @@
-package com.xavelo.kafka;
+package com.xavelo.crypto;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -24,7 +24,7 @@ public class KafkaConsumerController {
     private GitProperties gitProperties;
 
     @Autowired
-    private KafkaListener kafkaListener;
+    private CryptoPriceUpdatesListener kafkaCryptoPriceUpdatesListener;
 
     @GetMapping("/hello")
     public ResponseEntity<Hello> hello() {

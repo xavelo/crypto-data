@@ -1,14 +1,14 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: api-kafka-consumer-deployment
+  name: crypto-data-deployment
   annotations:
     commitID: "dd23cc2d947eeb9c724cc8d8d0c46f717341141a"
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: api-kafka-consumer
+      app: crypto-data
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -17,10 +17,10 @@ spec:
   template:
     metadata:
       labels:
-        app: api-kafka-consumer
+        app: crypto-data
     spec:
       containers:
-        - name: api-kafka-consumer
-          image: 'xavelo/api-kafka-consumer:dd23cc2d947eeb9c724cc8d8d0c46f717341141a'
+        - name: crypto-data
+          image: 'xavelo/crypto-data:dd23cc2d947eeb9c724cc8d8d0c46f717341141a'
           ports:
             - containerPort: 80

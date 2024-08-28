@@ -1,12 +1,12 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: api-kafka-consumer-service
+  name: crypto-data-service
 spec:
   type: NodePort
   ports:
     - port: 8080
       targetPort: 8080
-      nodePort: 30005
+      nodePort: 30011
   selector:
-    app: api-kafka-consumer
+    app: crypto-data
