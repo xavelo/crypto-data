@@ -27,10 +27,10 @@ public class CryptoDataController {
         return ResponseEntity.ok("hello from pod " + podName);
     }
 
-    @GetMapping("/count")
-    public ResponseEntity<String> consume(@RequestParam String topic) {
+    @GetMapping("/prices/count")
+    public ResponseEntity<Long> consume() {
         long count = dataService.getPricesCount();
-        return ResponseEntity.ok(topic);
+        return ResponseEntity.ok(count);
     }
 
 }
