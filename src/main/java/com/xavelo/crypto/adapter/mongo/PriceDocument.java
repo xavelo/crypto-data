@@ -15,7 +15,6 @@ public class PriceDocument {
     private String currency;
     private Instant timestamp;
 
-    // Embedded class for the compound _id
     public static class PriceId {
 
         private String coin;
@@ -26,7 +25,6 @@ public class PriceDocument {
             this.timestamp = timestamp;
         }
 
-        // Getters and setters
     }
 
     public PriceDocument(PriceId id, BigDecimal price, String currency) {
@@ -35,5 +33,4 @@ public class PriceDocument {
         this.currency = currency;
     }
 
-    // Getters and setters
 }

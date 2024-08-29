@@ -4,4 +4,6 @@ public interface DataService {
 
     long getPricesCount();
 
+    long getPricesCount(String coin);
+
 }

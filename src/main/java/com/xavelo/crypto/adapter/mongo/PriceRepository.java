@@ -8,7 +8,16 @@ import java.util.List;
 
 public interface PriceRepository extends MongoRepository<PriceDocument, PriceDocument.PriceId> {
 
+    long count();
+
+    long countByCoin(String coin);
+
+
     @Query("{'_id.timestamp': {$gt: ?0}}")
     List<PriceDocument> findByTimestampAfter(Instant timestamp);
+
+
+    @Query("{'id.coin': ?0, 'id.timestamp': {$gte: ?1}}")
+    List<PriceDocument> findPricesForCoinInLast24Hours(String coin, Instant timestamp);
 
 }
