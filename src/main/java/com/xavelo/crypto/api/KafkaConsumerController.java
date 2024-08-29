@@ -1,9 +1,10 @@
-package com.xavelo.crypto;
+package com.xavelo.crypto.api;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
+import com.xavelo.crypto.listener.CryptoPriceUpdatesListener;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
