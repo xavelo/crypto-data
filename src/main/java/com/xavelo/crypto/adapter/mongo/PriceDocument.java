@@ -29,8 +29,8 @@ public class PriceDocument {
         // Getters and setters
     }
 
-    public PriceDocument(String coinId, Instant timestamp, BigDecimal price, String currency) {
-        this.id = new PriceId(coinId, timestamp);
+    public PriceDocument(String coin, Instant timestamp, BigDecimal price, String currency) {
+        this.id = new PriceId(coin, timestamp);
         this.price = price;
         this.currency = currency;
     }
