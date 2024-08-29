@@ -28,7 +28,7 @@ public class CryptoPriceUpdatesListener {
         checkCollection();
         saveMessage(key, message);
         Message msg = findMessageByKey("key");
-        if(msg!=null) logger.info("Read message by key {}: {}", key, msg.getValue())
+        if(msg!=null) logger.info("Read message by key {}: {}", key, msg.getValue());
     }
 
     private void checkCollection() {
