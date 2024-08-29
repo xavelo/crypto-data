@@ -8,6 +8,9 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.support.KafkaHeaders;
+import org.springframework.messaging.handler.annotation.Header;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -19,11 +22,11 @@ public class CryptoPriceUpdatesListener {
     @Autowired
     private MongoTemplate mongoTemplate;
 
-    @KafkaListener(topics = "crypto-price-updates-topic", groupId = "cryppto-price-updates-group", containerFactory = "kafkaListenerContainerFactory")
-    public void consume(String message) {
-        logger.info("Received message: {}", message);
+    @KafkaListener(topics = "crypto-price-updates-topic", groupId = "crypto-price-updates-group", containerFactory = "kafkaListenerContainerFactory")
+    public void consume(@Payload String message, @Header(KafkaHeaders.RECEIVED_KEY) String key) {
+        logger.info("Received message: key {} - value {}", key, message);
         checkCollection();
-        //saveMessage(message);
+        saveMessage(key, message);
         //Message msg = findMessageByKey("key");
         //logger.info("Read message: {}", msg.getValue());
     }
@@ -32,13 +35,11 @@ public class CryptoPriceUpdatesListener {
         if (!mongoTemplate.collectionExists(CRYPTO_PRICE_UPDATES_COLLECTION)) {
             logger.info("Creating collection {}", CRYPTO_PRICE_UPDATES_COLLECTION);
             mongoTemplate.createCollection(CRYPTO_PRICE_UPDATES_COLLECTION);
-        } else {
-            logger.info("Collection {} already existing", CRYPTO_PRICE_UPDATES_COLLECTION);
         }
     }
 
-    private void saveMessage(String message) {
-        Message msg = new Message("key", message);
+    private void saveMessage(String key, String message) {
+        Message msg = new Message(key, message);
         mongoTemplate.save(msg, CRYPTO_PRICE_UPDATES_COLLECTION);
         logger.info("Message with key {} saved",  msg.getKey());
     }
