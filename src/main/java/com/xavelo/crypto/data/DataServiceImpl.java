@@ -25,9 +25,9 @@ public class DataServiceImpl implements DataService {
         return priceRepository.countByCoin(coin);
     }
 
-    public List<PriceDocument> getPricesForCoinLast24Hours(String coin) {
-        Instant twentyFourHoursAgo = Instant.now().minus(24, ChronoUnit.HOURS);
-        return priceRepository.findPricesForCoinInLast24Hours(coin, twentyFourHoursAgo);
+    public List<PriceDocument> getPricesByCoinLastHours(String coin, int hours) {
+        Instant hoursAgo = Instant.now().minus(hours, ChronoUnit.HOURS);
+        return priceRepository.findPricesForCoinInLastHours(coin, hoursAgo);
     }
 
 }

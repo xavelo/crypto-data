@@ -18,6 +18,6 @@ public interface PriceRepository extends MongoRepository<PriceDocument, PriceDoc
 
 
     @Query("{'id.coin': ?0, 'id.timestamp': {$gte: ?1}}")
-    List<PriceDocument> findPricesForCoinInLast24Hours(String coin, Instant timestamp);
+    List<PriceDocument> findPricesForCoinInLastHours(String coin, Instant timestamp);
 
 }
