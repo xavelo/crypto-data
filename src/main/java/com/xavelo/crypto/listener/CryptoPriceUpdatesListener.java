@@ -41,9 +41,10 @@ public class CryptoPriceUpdatesListener {
         logger.info("Received message: key {} - value {}", key, message);
         Price price = objectMapper.readValue(message, Price.class);
 
+        PriceDocument.PriceId priceId = new PriceDocument.PriceId(price.getCoin(), price.getTimestamp());
+
         PriceDocument document = new PriceDocument(
-            price.getCoin(),
-            price.getTimestamp(),
+            priceId,
             price.getPrice(),
             price.getCurrency()
         );
