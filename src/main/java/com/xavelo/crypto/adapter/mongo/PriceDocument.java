@@ -10,18 +10,19 @@ import java.time.Instant;
 public class PriceDocument {
 
     @Id
-    private CryptoPriceId id;
+    private PriceId id;
     private BigDecimal price;
     private String currency;
     private Instant timestamp;
 
     // Embedded class for the compound _id
-    public static class CryptoPriceId {
-        private String coinId;
+    public static class PriceId {
+
+        private String coin;
         private Instant timestamp;
 
-        public CryptoPriceId(String coinId, Instant timestamp) {
-            this.coinId = coinId;
+        public PriceId(String coin, Instant timestamp) {
+            this.coin = coin;
             this.timestamp = timestamp;
         }
 
@@ -29,7 +30,7 @@ public class PriceDocument {
     }
 
     public PriceDocument(String coinId, Instant timestamp, BigDecimal price, String currency) {
-        this.id = new CryptoPriceId(coinId, timestamp);
+        this.id = new PriceId(coinId, timestamp);
         this.price = price;
         this.currency = currency;
     }
