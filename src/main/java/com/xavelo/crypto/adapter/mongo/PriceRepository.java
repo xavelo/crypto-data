@@ -11,7 +11,11 @@ public interface PriceRepository extends MongoRepository<PriceDocument, PriceDoc
     long count();
 
     @Query("{ 'id.coin': ?0 }")
-    long countByCoin(String coin);
+    List<PriceDocument>findByCoin(String coin);
+
+    default long countByCoin(String coin) {
+        return findByCoin(coin).size();
+    }
 
     @Query("{'_id.timestamp': {$gt: ?0}}")
     List<PriceDocument> findByTimestampAfter(Instant timestamp);
