@@ -42,10 +42,9 @@ public class DataServiceImpl implements DataService {
 
     @Override
     public BigDecimal getAveragePriceByCoinLastHours(String coin, int hours) {
-        logger.info("getAveragePriceByCoinLastHours {} - {}", coin, hours);
         Date date = new Date(System.currentTimeMillis() - (long) hours * 60 * 60 * 1000);
-        logger.info("date " + date.getTime());
         List<AveragePrice> result = priceRepository.findAveragePriceInLast24Hours(coin, date);
+        logger.info("result {}", result);
         return result.get(0).getValue();
     }
 
