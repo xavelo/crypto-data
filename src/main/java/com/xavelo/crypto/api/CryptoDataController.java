@@ -46,6 +46,8 @@ public class CryptoDataController {
     @GetMapping("/prices/{coin}/last/{hours}/h")
     public ResponseEntity<List<PriceDocument>> lastPricesByCoin(@PathVariable String coin, @PathVariable int hours) {
         List<PriceDocument> prices = dataService.getPricesByCoinLastHours(coin, hours);
+        logger.info("prices {} last {} hours returned {} prices", coin, hours, prices.size());
+        prices.forEach(price -> logger.info("price {} - {}", price.getId().getCoin(), price.getPrice()));
         return ResponseEntity.ok(prices);
     }
 
