@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -46,9 +47,13 @@ public class CryptoDataController {
     @GetMapping("/prices/{coin}/last/{hours}/h")
     public ResponseEntity<List<PriceDocument>> lastPricesByCoin(@PathVariable String coin, @PathVariable int hours) {
         List<PriceDocument> prices = dataService.getPricesByCoinLastHours(coin, hours);
-        logger.info("prices {} last {} hours returned {} prices", coin, hours, prices.size());
-        prices.forEach(price -> logger.info("price {} - {}", price.getId().getCoin(), price.getPrice()));
         return ResponseEntity.ok(prices);
+    }
+
+    @GetMapping("/price/{coin}/average/{hours}/h")
+    public ResponseEntity<BigDecimal> averagePricesByCoin(@PathVariable String coin, @PathVariable int hours) {
+        BigDecimal averagePrice = dataService.getAveragePriceByCoinLastHours(coin, hours);
+        return ResponseEntity.ok(averagePrice);
     }
 
 }
