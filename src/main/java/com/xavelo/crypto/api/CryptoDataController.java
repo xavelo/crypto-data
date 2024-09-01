@@ -45,8 +45,14 @@ public class CryptoDataController {
     }
 
     @GetMapping("/prices/{coin}/last/{hours}/h")
-    public ResponseEntity<List<PriceDocument>> lastPricesByCoin(@PathVariable String coin, @PathVariable int hours) {
+    public ResponseEntity<List<PriceDocument>> pricesByCoinLastHours(@PathVariable String coin, @PathVariable int hours) {
         List<PriceDocument> prices = dataService.getPricesByCoinLastHours(coin, hours);
+        return ResponseEntity.ok(prices);
+    }
+
+    @GetMapping("/prices/{coin}/last/{days}/d")
+    public ResponseEntity<List<PriceDocument>> pricesByCoinLastDays(@PathVariable String coin, @PathVariable int days) {
+        List<PriceDocument> prices = dataService.getPricesByCoinLastHours(coin, days * 24);
         return ResponseEntity.ok(prices);
     }
 
