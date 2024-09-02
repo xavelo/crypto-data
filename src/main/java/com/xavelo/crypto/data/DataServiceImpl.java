@@ -2,7 +2,6 @@ package com.xavelo.crypto.data;
 
 import com.xavelo.crypto.adapter.mongo.PriceDocument;
 import com.xavelo.crypto.adapter.mongo.PriceRepository;
-import com.xavelo.crypto.api.CryptoDataController;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,15 +36,15 @@ public class DataServiceImpl implements DataService {
     public List<PriceDocument> getPricesByCoinLastHours(String coin, int hours) {
         Sort sort = Sort.by("_id.timestamp").descending();
         Instant hoursAgo = Instant.now().minus(hours, ChronoUnit.HOURS);
-        return priceRepository.findPricesForCoinInLastHours(coin, hoursAgo,sort);
+        return priceRepository.findPricesForCoinInLastHours(coin, hoursAgo, sort);
     }
 
     @Override
     public BigDecimal getAveragePriceByCoinLastHours(String coin, int hours) {
-        Date date = new Date(System.currentTimeMillis() - (long) hours * 60 * 60 * 1000);
-        List<AveragePrice> result = priceRepository.findAveragePriceInLast24Hours(coin, date);
+        Instant hoursAgo = Instant.now().minus(hours, ChronoUnit.HOURS);
+        List<AveragePrice> result = priceRepository.findAveragePriceInLast24Hours(coin, hoursAgo);
         logger.info("result {}", result);
-        return result.get(0).getValue();
+        return (result != null && !result.isEmpty()) ? result.get(0).getValue() : null;
     }
 
 }

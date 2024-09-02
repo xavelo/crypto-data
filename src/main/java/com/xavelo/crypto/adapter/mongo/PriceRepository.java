@@ -33,6 +33,6 @@ public interface PriceRepository extends MongoRepository<PriceDocument, PriceDoc
             "{ $match: { 'id.coin': ?0, timestamp: { $gte: ?1 } } }",
             "{ $group: { _id: null, avgPrice: { $avg: \"$price\" } } }"
     })
-    List<AveragePrice> findAveragePriceInLast24Hours(String coin, Date date);
+    List<AveragePrice> findAveragePriceInLast24Hours(String coin, Instant timestamp);
 
 }
