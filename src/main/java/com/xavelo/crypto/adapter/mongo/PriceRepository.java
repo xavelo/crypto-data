@@ -30,7 +30,8 @@ public interface PriceRepository extends MongoRepository<PriceDocument, PriceDoc
     List<PriceDocument> findPricesForCoinInLastHours(String coin, Instant timestamp, Sort sort);
 
     @Aggregation(pipeline = {
-            "{ $match: { 'id.coin': ?0, timestamp: { $gte: ?1 } } }",
+            //"{ $match: { 'id.coin': ?0, timestamp: { $gte: ?1 } } }",
+            "{ $match: { 'id.coin': ?0 } }",
             "{ $group: { _id: null, avgPrice: { $avg: \"$price\" } } }"
     })
     List<AveragePrice> findAveragePriceInLast24Hours(String coin, Instant timestamp);
