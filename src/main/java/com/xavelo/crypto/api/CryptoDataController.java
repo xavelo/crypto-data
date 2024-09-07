@@ -1,6 +1,5 @@
 package com.xavelo.crypto.api;
 
-import com.xavelo.crypto.Price;
 import com.xavelo.crypto.adapter.mongo.PriceDocument;
 import com.xavelo.crypto.data.DataService;
 import org.apache.logging.log4j.LogManager;

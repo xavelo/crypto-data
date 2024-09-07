@@ -1,1 +1,1 @@
-[![CI/CD Pipeline](https://github.com/xavelo/hello-world-k3s/actions/workflows/ci-cd.yaml/badge.svg)](https://github.com/xavelo/hello-world-k3s/actions/workflows/ci-cd.yaml)
+[![CI/CD Pipeline](https://github.com/xavelo/crypto-data/actions/workflows/ci-cd.yaml/badge.svg)](https://github.com/xavelo/crypto-data/actions/workflows/ci-cd.yaml)
