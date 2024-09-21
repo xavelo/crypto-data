@@ -19,11 +19,14 @@ public class CryptoPriceUpdatesListener {
 
     private static final Logger logger = LoggerFactory.getLogger(CryptoPriceUpdatesListener.class);
 
+    private final PriceRepository repository;
+    private final ObjectMapper objectMapper;
+    
     @Autowired
-    private PriceRepository repository;
-
-    @Autowired
-    private ObjectMapper objectMapper;
+    public CryptoPriceUpdatesListener(PriceRepository repository, ObjectMapper objectMapper) {
+        this.repository = repository;
+        this.objectMapper = objectMapper;
+    }
 
     @KafkaListener(topics = "crypto-price-updates-topic", groupId = "crypto-price-updates-group", containerFactory = "kafkaListenerContainerFactory")
     public void consume(@Payload String message, @Header(KafkaHeaders.RECEIVED_KEY) String key) throws JsonProcessingException {

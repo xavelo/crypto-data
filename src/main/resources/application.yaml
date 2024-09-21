@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: crypto-data
+  kafka:
+    consumer:
+      bootstrap-servers: my-cluster-kafka-bootstrap.kafka.svc:9092
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+  data:
+    mongodb:
+      uri: mongodb://adminuser:password123@10.43.246.249:27017/admin

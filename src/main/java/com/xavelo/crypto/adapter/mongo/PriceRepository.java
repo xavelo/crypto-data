@@ -11,8 +11,6 @@ import java.util.List;
 
 public interface PriceRepository extends MongoRepository<PriceDocument, PriceDocument.PriceId> {
 
-
-
     long count();
 
     @Query("{ 'id.coin': ?0 }")
