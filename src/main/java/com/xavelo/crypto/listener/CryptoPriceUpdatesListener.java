@@ -29,7 +29,7 @@ public class CryptoPriceUpdatesListener {
     }
 
     @KafkaListener(topics = "crypto-price-updates-topic", groupId = "crypto-price-updates-group", containerFactory = "kafkaListenerContainerFactory")
-    public void consume(@Payload String message, @Header(KafkaHeaders.RECEIVED_KEY) String key) throws JsonProcessingException {
+    public void consume(@Payload String message, @Header(KafkaHeaders.RECEIVED_KEY) String key) throws JsonProcessingException, InterruptedException {
         logger.info("Received message: key {} - value {}", key, message);
         Price price = objectMapper.readValue(message, Price.class);
         PriceDocument.PriceId priceId = new PriceDocument.PriceId(price.getCoin(), price.getTimestamp());
@@ -39,6 +39,9 @@ public class CryptoPriceUpdatesListener {
             price.getCurrency()
         );
         repository.save(document);
+
+        // test        
+        Thread.sleep(5000); // Delay for 5 seconds
     }
 
 }
