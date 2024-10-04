@@ -9,3 +9,19 @@ spring:
   data:
     mongodb:
       uri: mongodb://adminuser:password123@10.43.246.249:27017/admin
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+  web:
+    exposure:
+      include: "*"
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "prometheus"  # Expose the Prometheus endpoint
+  endpoint:
+    prometheus:
+      enabled: true  # Enable the Prometheus endpoint
+  
