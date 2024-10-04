@@ -41,7 +41,7 @@ public class CryptoPriceUpdatesListener {
         repository.save(document);
 
         // test        
-        Thread.sleep(5000); // Delay for 5 seconds
+        Thread.sleep(1000); // Delay for 5 seconds
     }
 
 }
