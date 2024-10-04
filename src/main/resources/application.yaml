@@ -20,7 +20,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: "prometheus"  # Expose the Prometheus endpoint
+        include: "prometheus,health,info,metrics,env,loggers"  # Expose the Prometheus endpoint
   endpoint:
     prometheus:
       enabled: true  # Enable the Prometheus endpoint
