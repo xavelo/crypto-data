@@ -39,9 +39,6 @@ public class CryptoPriceUpdatesListener {
             price.getCurrency()
         );
         repository.save(document);
-
-        // test        
-        Thread.sleep(1000); // Delay for 5 seconds
     }
 
 }
