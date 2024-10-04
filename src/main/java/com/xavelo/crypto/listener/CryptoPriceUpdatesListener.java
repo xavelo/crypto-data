@@ -58,6 +58,8 @@ public class CryptoPriceUpdatesListener {
         // Calculate processing time in milliseconds
         long processingTime = (endTime - startTime) / 1_000_000; // Convert to milliseconds
         
+        logger.info("crypto.price.processing.time: {}", processingTime);
+        
         // Send metric to metrics server
         Timer timer = Timer.builder("crypto.price.processing.time")
                 .description("Time taken to process crypto price updates")
