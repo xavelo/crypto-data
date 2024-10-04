@@ -44,7 +44,7 @@ public class CryptoPriceUpdatesListener {
         long startTime = System.nanoTime();
         
         // Simulate processing time
-        Thread.sleep(500); // Delay for 0.5 seconds
+        // Thread.sleep(500); // Delay for 0.5 seconds
 
         Price price = objectMapper.readValue(message, Price.class);
         PriceDocument.PriceId priceId = new PriceDocument.PriceId(price.getCoin(), price.getTimestamp());
