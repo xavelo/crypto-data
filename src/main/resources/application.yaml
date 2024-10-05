@@ -9,6 +9,9 @@ spring:
   data:
     mongodb:
       uri: mongodb://adminuser:password123@10.43.246.249:27017/admin
+  redis:
+    host: 10.43.133.15
+    port: 6379
   metrics:
     export:
       prometheus:
@@ -20,7 +23,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: "prometheus,health,info,metrics,env,loggers"  # Expose the Prometheus endpoint
+        include: "prometheus,health,info,metrics"  # Expose the Prometheus endpoint
   endpoint:
     prometheus:
       enabled: true  # Enable the Prometheus endpoint

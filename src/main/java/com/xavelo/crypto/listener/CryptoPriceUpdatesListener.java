@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.xavelo.crypto.Price;
 import com.xavelo.crypto.adapter.mongo.PriceDocument;
 import com.xavelo.crypto.adapter.mongo.PriceRepository;
+import com.xavelo.crypto.adapter.redis.RedisAdapter;
 
 import java.util.concurrent.TimeUnit;
 
@@ -26,12 +27,14 @@ public class CryptoPriceUpdatesListener {
     private static final Logger logger = LoggerFactory.getLogger(CryptoPriceUpdatesListener.class);
 
     private final PriceRepository repository;
+    private final RedisAdapter redisAdapter;
     private final ObjectMapper objectMapper;
     private final MeterRegistry meterRegistry;
     
     @Autowired
-    public CryptoPriceUpdatesListener(PriceRepository repository, ObjectMapper objectMapper, MeterRegistry meterRegistry) {
+    public CryptoPriceUpdatesListener(PriceRepository repository, RedisAdapter redisAdapter, ObjectMapper objectMapper, MeterRegistry meterRegistry) {
         this.repository = repository;
+        this.redisAdapter = redisAdapter;
         this.objectMapper = objectMapper;
         this.meterRegistry = meterRegistry;
     }
@@ -44,13 +47,8 @@ public class CryptoPriceUpdatesListener {
         long startTime = System.nanoTime();
 
         Price price = objectMapper.readValue(message, Price.class);
-        PriceDocument.PriceId priceId = new PriceDocument.PriceId(price.getCoin(), price.getTimestamp());
-        PriceDocument document = new PriceDocument(
-            priceId,
-            price.getPrice(),
-            price.getCurrency()
-        );
-        repository.save(document);
+        saveToMongo(price);
+        saveToRedis(price);
 
         // End timer
         long endTime = System.nanoTime();
@@ -66,6 +64,20 @@ public class CryptoPriceUpdatesListener {
                 .register(meterRegistry);
         timer.record(processingTime, TimeUnit.MILLISECONDS);
 
+    }
+
+    private void saveToMongo(Price price) {
+        PriceDocument.PriceId priceId = new PriceDocument.PriceId(price.getCoin(), price.getTimestamp());
+        PriceDocument document = new PriceDocument(
+            priceId,
+            price.getPrice(),
+            price.getCurrency()
+        );
+        repository.save(document);
+    }
+
+    private void saveToRedis(Price price) {
+        redisAdapter.savePriceUpdate(price);
     }
 
 }
