@@ -16,6 +16,8 @@ import java.math.BigDecimal;
 
 import java.util.stream.Collectors; // {{ edit_1 }}
 
+import java.math.RoundingMode; // Add this import
+
 @Component
 public class RedisAdapter {
     
@@ -87,8 +89,16 @@ public class RedisAdapter {
         for (BigDecimal price : prices) {
             sum = sum.add(price);
         }
-        return sum.divide(new BigDecimal(prices.size()));
+        
+        // Handle case where no prices are found to avoid divide by zero
+        if (prices.size() == 0) {
+            return BigDecimal.ZERO;
+        }
+    
+        // Set the scale to 2 decimal places and rounding mode
+        return sum.divide(new BigDecimal(prices.size()), 2, RoundingMode.HALF_UP);
     }
+    
 
     public double getAveragePriceForCoin(String coin) {
         String hashKey = "coin:" + coin;
