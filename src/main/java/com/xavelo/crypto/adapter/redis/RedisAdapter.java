@@ -6,6 +6,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import com.xavelo.crypto.Price;
+import com.xavelo.crypto.service.PriceService;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -19,7 +20,7 @@ import java.util.stream.Collectors; // {{ edit_1 }}
 import java.math.RoundingMode; // Add this import
 
 @Component
-public class RedisAdapter {
+public class RedisAdapter implements PriceService {
     
     private static final Logger logger = LoggerFactory.getLogger(RedisAdapter.class);
 
@@ -29,6 +30,7 @@ public class RedisAdapter {
         this.redisTemplate = redisTemplate;        
     }
 
+    @Override
     public void savePriceUpdate(Price price) {
         String hashKey = "coin:" + price.getCoin();
         redisTemplate.opsForHash().put(hashKey, "price:" + price.getTimestamp().toEpochMilli(), price.getPrice().toString());
@@ -55,6 +57,7 @@ public class RedisAdapter {
         return prices;
     }
 
+    @Override
     public BigDecimal getLastPriceByCoin(String coin) {
         String hashKey = "coin:" + coin;
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(hashKey);
@@ -74,6 +77,7 @@ public class RedisAdapter {
         return lastPrice;
     }
 
+    @Override
     public BigDecimal getAveragePriceByCoin(String coin) {
         String hashKey = "coin:" + coin;
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(hashKey);

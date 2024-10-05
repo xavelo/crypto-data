@@ -6,6 +6,7 @@ import com.xavelo.crypto.Price;
 import com.xavelo.crypto.adapter.mongo.PriceDocument;
 import com.xavelo.crypto.adapter.mongo.PriceRepository;
 import com.xavelo.crypto.adapter.redis.RedisAdapter;
+import com.xavelo.crypto.service.PriceService;
 
 import java.util.concurrent.TimeUnit;
 import java.math.BigDecimal; // {{ edit_1 }}
@@ -27,13 +28,19 @@ public class CryptoPriceUpdatesListener {
 
     private static final Logger logger = LoggerFactory.getLogger(CryptoPriceUpdatesListener.class);
 
+    private final PriceService priceService;
     private final PriceRepository repository;
     private final RedisAdapter redisAdapter;
     private final ObjectMapper objectMapper;
     private final MeterRegistry meterRegistry;
     
     @Autowired
-    public CryptoPriceUpdatesListener(PriceRepository repository, RedisAdapter redisAdapter, ObjectMapper objectMapper, MeterRegistry meterRegistry) {
+    public CryptoPriceUpdatesListener(PriceService priceService, 
+                                      PriceRepository repository, 
+                                      RedisAdapter redisAdapter, 
+                                      ObjectMapper objectMapper, 
+                                      MeterRegistry meterRegistry) {
+        this.priceService = priceService;
         this.repository = repository;
         this.redisAdapter = redisAdapter;
         this.objectMapper = objectMapper;
@@ -52,6 +59,7 @@ public class CryptoPriceUpdatesListener {
         saveToRedis(price);
         getAveragePrice(price.getCoin());
         getLastPrice(price.getCoin());
+        priceService.getAveragePriceByCoin(price.getCoin());
 
         // End timer
         long endTime = System.nanoTime();
@@ -128,7 +136,7 @@ public class CryptoPriceUpdatesListener {
                 .description("Time taken to calculate last price from redis")
                 .register(meterRegistry);
         timer.record(processingTime, TimeUnit.MILLISECONDS);
-        logger.info("{} average price: {}", coin, lastPrice);
+        logger.info("{} last price: {}", coin, lastPrice);
         return lastPrice;
     }
 
