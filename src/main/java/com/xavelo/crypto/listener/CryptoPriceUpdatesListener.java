@@ -92,7 +92,7 @@ public class CryptoPriceUpdatesListener {
         redisAdapter.savePriceUpdate(price);
         long endTime = System.nanoTime();
         long processingTime = (endTime - startTime) / 1_000_000; // Convert to milliseconds
-        logger.info("crypto.price.save.mongo.time: {}", processingTime);
+        logger.info("crypto.price.save.redis.time: {}", processingTime);
         // Send metric to metrics server
         Timer timer = Timer.builder("crypto.price.save.redis.time")
                 .description("Time taken to save crypto price updates to redis")
