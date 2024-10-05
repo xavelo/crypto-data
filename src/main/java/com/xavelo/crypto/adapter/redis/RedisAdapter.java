@@ -1,9 +1,14 @@
 package com.xavelo.crypto.adapter.redis;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import com.xavelo.crypto.Price;
+import com.xavelo.crypto.listener.CryptoPriceUpdatesListener;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -18,10 +23,16 @@ import java.math.BigDecimal;
 @Component
 public class RedisAdapter {
     
+    private static final Logger logger = LoggerFactory.getLogger(RedisAdapter.class);
+
+    @Autowired
+    private Environment env;
+
     private RedisTemplate<String, String> redisTemplate;
     
     public RedisAdapter(RedisTemplate<String, String> redisTemplate) {
         this.redisTemplate = redisTemplate;
+        logger.info("redis host {}", env.getProperty("spring.data.redis.host"));
     }
 
     public void savePriceUpdate(Price price) {
