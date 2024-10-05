@@ -130,7 +130,6 @@ public class RedisAdapter {
             // handle the case where no prices are found in the given time window
             // you can return a default value or throw an exception
             return BigDecimal.ZERO; // or throw new RuntimeException("No prices found in the given time window");
-            return BigDecimal.ZERO; // or throw new RuntimeException("No prices found in the given time window");
         }
     
         BigDecimal sum = prices.stream().reduce(BigDecimal.ZERO, BigDecimal::add);

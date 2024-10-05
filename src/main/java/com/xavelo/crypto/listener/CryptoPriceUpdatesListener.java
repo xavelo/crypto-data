@@ -85,8 +85,6 @@ public class CryptoPriceUpdatesListener {
                 .register(meterRegistry);
         timer.record(processingTime, TimeUnit.MILLISECONDS);
 
-        // logger.info("average Bitcoin price: {}", redisAdapter.getAveragePriceByCoin("BTC"));
-
     }
 
     private void saveToRedis(Price price) {
@@ -100,6 +98,8 @@ public class CryptoPriceUpdatesListener {
                 .description("Time taken to save crypto price updates to redis")
                 .register(meterRegistry);
         timer.record(processingTime, TimeUnit.MILLISECONDS);
+
+        // logger.info("average Bitcoin price: {}", redisAdapter.getAveragePriceByCoin("BTC"));
     }
 
 }
