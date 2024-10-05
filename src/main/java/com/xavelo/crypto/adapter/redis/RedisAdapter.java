@@ -87,4 +87,25 @@ public class RedisAdapter {
         return sum.divide(new BigDecimal(prices.size()));
     }
 
+    public double getAveragePriceForCoin(String coin) {
+        String hashKey = "coin:" + coin;
+        // Get all entries for the coin
+        Map<Object, Object> entries = redisTemplate.opsForHash().entries(hashKey);
+        List<Double> prices = new ArrayList<>();
+        // Extract and parse price values
+        for (Map.Entry<Object, Object> entry : entries.entrySet()) {
+            String key = (String) entry.getKey();
+            if (key.startsWith("price:")) {
+                String priceStr = (String) entry.getValue();
+                prices.add(Double.parseDouble(priceStr));
+            }
+        }
+        // Calculate average
+        if (prices.isEmpty()) {
+            return 0.0;
+        }
+        double sum = prices.stream().mapToDouble(Double::doubleValue).sum();
+        return sum / prices.size();
+    }
+
 }

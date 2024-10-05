@@ -9,9 +9,9 @@ spring:
   data:
     mongodb:
       uri: mongodb://adminuser:password123@10.43.246.249:27017/admin
-  redis:
-    host: 10.42.0.122
-    port: 6379
+    redis:
+      host: 10.42.0.122
+      port: 6379
   metrics:
     export:
       prometheus:
