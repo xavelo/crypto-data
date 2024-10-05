@@ -67,6 +67,7 @@ public class CryptoPriceUpdatesListener {
     }
 
     private void saveToMongo(Price price) {
+        long startTime = System.nanoTime();
         PriceDocument.PriceId priceId = new PriceDocument.PriceId(price.getCoin(), price.getTimestamp());
         PriceDocument document = new PriceDocument(
             priceId,
@@ -74,10 +75,29 @@ public class CryptoPriceUpdatesListener {
             price.getCurrency()
         );
         repository.save(document);
+        long endTime = System.nanoTime();
+        long processingTime = (endTime - startTime) / 1_000_000; // Convert to milliseconds
+        logger.info("crypto.price.save.mongo.time: {}", processingTime);
+        
+        // Send metric to metrics server
+        Timer timer = Timer.builder("crypto.price.save.mongo.time")
+                .description("Time taken to save crypto price updates to mongo")
+                .register(meterRegistry);
+        timer.record(processingTime, TimeUnit.MILLISECONDS);
+
     }
 
     private void saveToRedis(Price price) {
+        long startTime = System.nanoTime();
         redisAdapter.savePriceUpdate(price);
+        long endTime = System.nanoTime();
+        long processingTime = (endTime - startTime) / 1_000_000; // Convert to milliseconds
+        logger.info("crypto.price.save.mongo.time: {}", processingTime);
+        // Send metric to metrics server
+        Timer timer = Timer.builder("crypto.price.save.redis.time")
+                .description("Time taken to save crypto price updates to redis")
+                .register(meterRegistry);
+        timer.record(processingTime, TimeUnit.MILLISECONDS);
     }
 
 }
