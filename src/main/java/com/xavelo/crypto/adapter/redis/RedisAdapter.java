@@ -39,29 +39,18 @@ public class RedisAdapter implements PriceService {
 
     @Override
     public void savePriceUpdate(Price price) {
+        long startTime = System.nanoTime();
         String hashKey = "coin:" + price.getCoin();
         redisTemplate.opsForHash().put(hashKey, "price:" + price.getTimestamp().toEpochMilli(), price.getPrice().toString());
         redisTemplate.opsForHash().put(hashKey, "currency:" + price.getTimestamp().toEpochMilli(), price.getCurrency());
-    }
-
-    public List<Price> getPriceUpdatesByCoin(String coin) {
-        String hashKey = "coin:" + coin;
-        Map<Object, Object> entries = redisTemplate.opsForHash().entries(hashKey);
-        List<Price> prices = new ArrayList<>();
-        for (Map.Entry<Object, Object> entry : entries.entrySet()) {
-            String key = (String) entry.getKey();
-            String value = (String) entry.getValue();
-            if (key.startsWith("price:")) {
-                Instant timestamp = Instant.ofEpochMilli(Long.parseLong(key.split(":")[1]));
-                Price price = new Price(coin, new BigDecimal(value), null, timestamp);
-                prices.add(price);
-            } else if (key.startsWith("currency:")) {
-                Instant timestamp = Instant.ofEpochMilli(Long.parseLong(key.split(":")[1]));
-                // You can store the currency in a separate data structure or in the same hash set
-                // For simplicity, I'm ignoring the currency for now
-            }
-        }
-        return prices;
+        long endTime = System.nanoTime();
+        long processingTime = (endTime - startTime) / 1_000_000; // Convert to milliseconds
+        logger.info("crypto.price.save.redis.time: {}ms", processingTime);
+        // Send metric to metrics server
+        Timer timer = Timer.builder("crypto.price.save.redis.time")
+                .description("Time taken to save crypto price updates to redis")
+                .register(meterRegistry);
+        timer.record(processingTime, TimeUnit.MILLISECONDS);
     }
 
     @Override
@@ -123,6 +112,7 @@ public class RedisAdapter implements PriceService {
         long startTime = System.nanoTime();    
         String hashKey = "coin:" + coin;
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(hashKey);
+        long now = System.currentTimeMillis();
         List<BigDecimal> prices = entries.entrySet().stream()
                 .filter(entry -> ((String) entry.getKey()).startsWith("price:"))
                 .filter(entry -> {
@@ -173,6 +163,26 @@ public class RedisAdapter implements PriceService {
                 throw new RuntimeException("Invalid unit: " + unit);
         }
         return startTime;
+    }
+
+    public List<Price> getPriceUpdatesByCoin(String coin) {
+        String hashKey = "coin:" + coin;
+        Map<Object, Object> entries = redisTemplate.opsForHash().entries(hashKey);
+        List<Price> prices = new ArrayList<>();
+        for (Map.Entry<Object, Object> entry : entries.entrySet()) {
+            String key = (String) entry.getKey();
+            String value = (String) entry.getValue();
+            if (key.startsWith("price:")) {
+                Instant timestamp = Instant.ofEpochMilli(Long.parseLong(key.split(":")[1]));
+                Price price = new Price(coin, new BigDecimal(value), null, timestamp);
+                prices.add(price);
+            } else if (key.startsWith("currency:")) {
+                Instant timestamp = Instant.ofEpochMilli(Long.parseLong(key.split(":")[1]));
+                // You can store the currency in a separate data structure or in the same hash set
+                // For simplicity, I'm ignoring the currency for now
+            }
+        }
+        return prices;
     }
 
     public double getAveragePriceForCoin(String coin) {

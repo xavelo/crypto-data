@@ -97,6 +97,7 @@ public class CryptoPriceUpdatesListener {
         timer.record(processingTime, TimeUnit.MILLISECONDS);
     }
 
+    /*
     private void saveToRedis(Price price) {
         long startTime = System.nanoTime();
         redisAdapter.savePriceUpdate(price);
@@ -108,8 +109,9 @@ public class CryptoPriceUpdatesListener {
                 .description("Time taken to save crypto price updates to redis")
                 .register(meterRegistry);
         timer.record(processingTime, TimeUnit.MILLISECONDS);
-    }
+    }*/
 
+    /*
     private BigDecimal getAveragePrice(String coin) {
         long startTime = System.nanoTime();
         BigDecimal averagePrice = redisAdapter.getAveragePriceByCoin(coin);
@@ -123,8 +125,9 @@ public class CryptoPriceUpdatesListener {
         timer.record(processingTime, TimeUnit.MILLISECONDS);
         logger.info("{} average price: {}", coin, averagePrice);
         return averagePrice;
-    }
+    }*/
 
+    
     private BigDecimal getLastPrice(String coin) {
         long startTime = System.nanoTime();
         BigDecimal lastPrice = redisAdapter.getLastPriceByCoin(coin);
