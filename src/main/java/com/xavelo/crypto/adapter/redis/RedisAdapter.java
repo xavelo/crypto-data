@@ -2,8 +2,6 @@ package com.xavelo.crypto.adapter.redis;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
@@ -15,6 +13,8 @@ import java.util.Map;
 
 import java.time.Instant;
 import java.math.BigDecimal;
+
+import java.util.stream.Collectors; // {{ edit_1 }}
 
 @Component
 public class RedisAdapter {
@@ -109,6 +109,53 @@ public class RedisAdapter {
         }
         double sum = prices.stream().mapToDouble(Double::doubleValue).sum();
         return sum / prices.size();
+    }
+
+    public BigDecimal getAveragePriceByCoinInRange(String coin, int range, String unit) {
+        String hashKey = "coin:" + coin;
+        Map<Object, Object> entries = redisTemplate.opsForHash().entries(hashKey);
+        long now = System.currentTimeMillis() / 1000; // convert to seconds
+        long startTime = getStartTime(now, range, unit);
+    
+        List<BigDecimal> prices = entries.entrySet().stream()
+                .filter(entry -> ((String) entry.getKey()).startsWith("price:"))
+                .filter(entry -> {
+                    long timestamp = Long.parseLong(((String) entry.getKey()).replace("price:", ""));
+                    return timestamp >= startTime && timestamp <= now;
+                })
+                .map(entry -> new BigDecimal((String) entry.getValue()))
+                .collect(Collectors.toList());
+    
+        if (prices.isEmpty()) {
+            // handle the case where no prices are found in the given time window
+            // you can return a default value or throw an exception
+            return BigDecimal.ZERO; // or throw new RuntimeException("No prices found in the given time window");
+            return BigDecimal.ZERO; // or throw new RuntimeException("No prices found in the given time window");
+        }
+    
+        BigDecimal sum = prices.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
+        return sum.divide(new BigDecimal(prices.size()));
+    }
+    
+    private long getStartTime(long now, int range, String unit) {
+        long startTime;
+        switch (unit) {
+            case "s":
+                startTime = now - range;
+                break;
+            case "m":
+                startTime = now - range * 60;
+                break;
+            case "h":
+                startTime = now - range * 3600;
+                break;
+            case "d":
+                startTime = now - range * 86400;
+                break;
+            default:
+                throw new RuntimeException("Invalid unit: " + unit);
+        }
+        return startTime;
     }
 
 }
