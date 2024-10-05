@@ -56,7 +56,7 @@ public class CryptoPriceUpdatesListener {
         // Calculate processing time in milliseconds
         long processingTime = (endTime - startTime) / 1_000_000; // Convert to milliseconds
         
-        logger.info("crypto.price.processing.time: {}", processingTime);
+        logger.info("crypto.price.processing.time: {}ms", processingTime);
         
         // Send metric to metrics server
         Timer timer = Timer.builder("crypto.price.processing.time")
@@ -77,13 +77,15 @@ public class CryptoPriceUpdatesListener {
         repository.save(document);
         long endTime = System.nanoTime();
         long processingTime = (endTime - startTime) / 1_000_000; // Convert to milliseconds
-        logger.info("crypto.price.save.mongo.time: {}", processingTime);
+        logger.info("crypto.price.save.mongo.time: {}ms", processingTime);
         
         // Send metric to metrics server
         Timer timer = Timer.builder("crypto.price.save.mongo.time")
                 .description("Time taken to save crypto price updates to mongo")
                 .register(meterRegistry);
         timer.record(processingTime, TimeUnit.MILLISECONDS);
+
+        logger.info("average Bitcoin price: {}", redisAdapter.getAveragePriceByCoin("BTC"));
 
     }
 
@@ -92,7 +94,7 @@ public class CryptoPriceUpdatesListener {
         redisAdapter.savePriceUpdate(price);
         long endTime = System.nanoTime();
         long processingTime = (endTime - startTime) / 1_000_000; // Convert to milliseconds
-        logger.info("crypto.price.save.redis.time: {}", processingTime);
+        logger.info("crypto.price.save.redis.time: {}ms", processingTime);
         // Send metric to metrics server
         Timer timer = Timer.builder("crypto.price.save.redis.time")
                 .description("Time taken to save crypto price updates to redis")
