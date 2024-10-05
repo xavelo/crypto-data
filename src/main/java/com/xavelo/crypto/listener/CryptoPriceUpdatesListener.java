@@ -51,6 +51,7 @@ public class CryptoPriceUpdatesListener {
         saveToMongo(price);
         saveToRedis(price);
         getAveragePrice(price.getCoin());
+        getLastPrice(price.getCoin());
 
         // End timer
         long endTime = System.nanoTime();
@@ -114,6 +115,21 @@ public class CryptoPriceUpdatesListener {
         timer.record(processingTime, TimeUnit.MILLISECONDS);
         logger.info("{} average price: {}", coin, averagePrice);
         return averagePrice;
+    }
+
+    private BigDecimal getLastPrice(String coin) {
+        long startTime = System.nanoTime();
+        BigDecimal lastPrice = redisAdapter.getLastPriceByCoin(coin);
+        long endTime = System.nanoTime();
+        long processingTime = (endTime - startTime) / 1_000_000; // Convert to milliseconds
+        logger.info("crypto.price.calc.last.coin.redis.time for {}: {}ms", coin, processingTime);
+        // Send metric to metrics server
+        Timer timer = Timer.builder("crypto.price.calc.last.coin.redis.time")
+                .description("Time taken to calculate last price from redis")
+                .register(meterRegistry);
+        timer.record(processingTime, TimeUnit.MILLISECONDS);
+        logger.info("{} average price: {}", coin, lastPrice);
+        return lastPrice;
     }
 
 }

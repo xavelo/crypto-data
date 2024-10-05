@@ -96,7 +96,7 @@ public class RedisAdapter {
         }
     
         // Set the scale to 2 decimal places and rounding mode
-        return sum.divide(new BigDecimal(prices.size()), 2, RoundingMode.HALF_UP);
+        return sum.divide(new BigDecimal(prices.size()), 8, RoundingMode.HALF_UP);
     }
     
 
