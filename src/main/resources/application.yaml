@@ -10,7 +10,7 @@ spring:
     mongodb:
       uri: mongodb://adminuser:password123@10.43.246.249:27017/admin
     redis:
-      host: 10.43.133.15 # redis-service.redis.svc.cluster.local
+      host: redis-service.redis.svc.cluster.local # 10.43.133.15
       port: 6379
   metrics:
     export:
