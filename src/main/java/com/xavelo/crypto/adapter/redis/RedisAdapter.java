@@ -1,28 +1,24 @@
 package com.xavelo.crypto.adapter.redis;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
-import com.xavelo.crypto.Price;
-import com.xavelo.crypto.service.PriceService;
-
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
-
-import java.time.Instant;
-import java.math.BigDecimal;
-
-import java.util.stream.Collectors; // {{ edit_1 }}
-
-import java.math.RoundingMode; // Add this import
-
-import java.util.concurrent.TimeUnit; // Add this import
+import com.xavelo.crypto.service.PriceService;
+import com.xavelo.crypto.Price;
 
 @Component
 public class RedisAdapter implements PriceService {
@@ -113,18 +109,17 @@ public class RedisAdapter implements PriceService {
         String hashKey = "coin:" + coin;
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(hashKey);
         long now = System.currentTimeMillis();
+        long startTimeInRange = getStartTime(now, range, unit); // Calculate start time based on unit
         List<BigDecimal> prices = entries.entrySet().stream()
                 .filter(entry -> ((String) entry.getKey()).startsWith("price:"))
                 .filter(entry -> {
                     long timestamp = Long.parseLong(((String) entry.getKey()).replace("price:", ""));
-                    return timestamp >= startTime && timestamp <= now;
+                    return timestamp >= startTimeInRange && timestamp <= now; // Use calculated start time
                 })
                 .map(entry -> new BigDecimal((String) entry.getValue()))
                 .collect(Collectors.toList());
     
         if (prices.isEmpty()) {
-            // handle the case where no prices are found in the given time window
-            // you can return a default value or throw an exception
             return BigDecimal.ZERO; // or throw new RuntimeException("No prices found in the given time window");
         }
     

@@ -49,17 +49,16 @@ public class CryptoPriceUpdatesListener {
 
     @KafkaListener(topics = "crypto-price-updates-topic", groupId = "crypto-price-updates-group", containerFactory = "kafkaListenerContainerFactory")
     public void consume(@Payload String message, @Header(KafkaHeaders.RECEIVED_KEY) String key) throws JsonProcessingException, InterruptedException {
-        logger.info("Received message: key {} - value {}", key, message);
+        logger.info("\nReceived message: key {} - value {}", key, message);
 
         // Start timer
         long startTime = System.nanoTime();
 
         Price price = objectMapper.readValue(message, Price.class);
         saveToMongo(price);
-        //saveToRedis(price);
         priceService.savePriceUpdate(price);
         priceService.getAveragePriceByCoin(price.getCoin());
-        priceService.getAveragePriceByCoinInRange(price.getCoin(), 5, "m");
+        priceService.getAveragePriceByCoinInRange(price.getCoin(), 1, "h");
 
         // End timer
         long endTime = System.nanoTime();
@@ -96,36 +95,6 @@ public class CryptoPriceUpdatesListener {
                 .register(meterRegistry);
         timer.record(processingTime, TimeUnit.MILLISECONDS);
     }
-
-    /*
-    private void saveToRedis(Price price) {
-        long startTime = System.nanoTime();
-        redisAdapter.savePriceUpdate(price);
-        long endTime = System.nanoTime();
-        long processingTime = (endTime - startTime) / 1_000_000; // Convert to milliseconds
-        logger.info("crypto.price.save.redis.time: {}ms", processingTime);
-        // Send metric to metrics server
-        Timer timer = Timer.builder("crypto.price.save.redis.time")
-                .description("Time taken to save crypto price updates to redis")
-                .register(meterRegistry);
-        timer.record(processingTime, TimeUnit.MILLISECONDS);
-    }*/
-
-    /*
-    private BigDecimal getAveragePrice(String coin) {
-        long startTime = System.nanoTime();
-        BigDecimal averagePrice = redisAdapter.getAveragePriceByCoin(coin);
-        long endTime = System.nanoTime();
-        long processingTime = (endTime - startTime) / 1_000_000; // Convert to milliseconds
-        logger.info("crypto.price.calc.average.coin.redis.time for {}: {}ms", coin, processingTime);
-        // Send metric to metrics server
-        Timer timer = Timer.builder("crypto.price.calc.average.coin.redis.time")
-                .description("Time taken to calculate average price from redis")
-                .register(meterRegistry);
-        timer.record(processingTime, TimeUnit.MILLISECONDS);
-        logger.info("{} average price: {}", coin, averagePrice);
-        return averagePrice;
-    }*/
 
 }
 
