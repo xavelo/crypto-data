@@ -8,6 +8,7 @@ import com.xavelo.crypto.adapter.mongo.PriceRepository;
 import com.xavelo.crypto.adapter.redis.RedisAdapter;
 
 import java.util.concurrent.TimeUnit;
+import java.math.BigDecimal; // {{ edit_1 }}
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +50,7 @@ public class CryptoPriceUpdatesListener {
         Price price = objectMapper.readValue(message, Price.class);
         saveToMongo(price);
         saveToRedis(price);
+        getAveragePrice(price.getCoin());
 
         // End timer
         long endTime = System.nanoTime();
@@ -84,7 +86,6 @@ public class CryptoPriceUpdatesListener {
                 .description("Time taken to save crypto price updates to mongo")
                 .register(meterRegistry);
         timer.record(processingTime, TimeUnit.MILLISECONDS);
-
     }
 
     private void saveToRedis(Price price) {
@@ -98,8 +99,21 @@ public class CryptoPriceUpdatesListener {
                 .description("Time taken to save crypto price updates to redis")
                 .register(meterRegistry);
         timer.record(processingTime, TimeUnit.MILLISECONDS);
+    }
 
-        logger.info("average Bitcoin price: {}", redisAdapter.getAveragePriceByCoin("BTC"));
+    private BigDecimal getAveragePrice(String coin) {
+        long startTime = System.nanoTime();
+        BigDecimal averagePrice = redisAdapter.getAveragePriceByCoin(coin);
+        long endTime = System.nanoTime();
+        long processingTime = (endTime - startTime) / 1_000_000; // Convert to milliseconds
+        logger.info("crypto.price.calc.average.coin.redis.time for {}: {}ms", coin, processingTime);
+        // Send metric to metrics server
+        Timer timer = Timer.builder("crypto.price.calc.average.coin.redis.time")
+                .description("Time taken to calculate average price from redis")
+                .register(meterRegistry);
+        timer.record(processingTime, TimeUnit.MILLISECONDS);
+        logger.info("{} average price: {}", coin, averagePrice);
+        return averagePrice;
     }
 
 }
