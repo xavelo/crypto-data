@@ -8,7 +8,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import com.xavelo.crypto.Price;
-import com.xavelo.crypto.listener.CryptoPriceUpdatesListener;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -17,22 +16,15 @@ import java.util.Map;
 import java.time.Instant;
 import java.math.BigDecimal;
 
-
-
-
 @Component
 public class RedisAdapter {
     
     private static final Logger logger = LoggerFactory.getLogger(RedisAdapter.class);
 
-    @Autowired
-    private Environment env;
-
     private RedisTemplate<String, String> redisTemplate;
     
     public RedisAdapter(RedisTemplate<String, String> redisTemplate) {
-        this.redisTemplate = redisTemplate;
-        logger.info("redis host {}", env.getProperty("spring.data.redis.host"));
+        this.redisTemplate = redisTemplate;        
     }
 
     public void savePriceUpdate(Price price) {
