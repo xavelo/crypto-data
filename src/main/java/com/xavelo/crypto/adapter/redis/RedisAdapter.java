@@ -8,6 +8,9 @@ import org.springframework.stereotype.Component;
 import com.xavelo.crypto.Price;
 import com.xavelo.crypto.service.PriceService;
 
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
+
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
@@ -19,15 +22,19 @@ import java.util.stream.Collectors; // {{ edit_1 }}
 
 import java.math.RoundingMode; // Add this import
 
+import java.util.concurrent.TimeUnit; // Add this import
+
 @Component
 public class RedisAdapter implements PriceService {
     
     private static final Logger logger = LoggerFactory.getLogger(RedisAdapter.class);
 
     private RedisTemplate<String, String> redisTemplate;
+    private final MeterRegistry meterRegistry;
     
-    public RedisAdapter(RedisTemplate<String, String> redisTemplate) {
-        this.redisTemplate = redisTemplate;        
+    public RedisAdapter(RedisTemplate<String, String> redisTemplate, MeterRegistry meterRegistry) {
+        this.redisTemplate = redisTemplate;   
+        this.meterRegistry = meterRegistry;     
     }
 
     @Override
@@ -79,6 +86,7 @@ public class RedisAdapter implements PriceService {
 
     @Override
     public BigDecimal getAveragePriceByCoin(String coin) {
+        long startTime = System.nanoTime();
         String hashKey = "coin:" + coin;
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(hashKey);
         List<BigDecimal> prices = new ArrayList<>();
@@ -93,44 +101,28 @@ public class RedisAdapter implements PriceService {
         for (BigDecimal price : prices) {
             sum = sum.add(price);
         }
-        
         // Handle case where no prices are found to avoid divide by zero
         if (prices.size() == 0) {
             return BigDecimal.ZERO;
         }
-    
-        // Set the scale to 2 decimal places and rounding mode
-        return sum.divide(new BigDecimal(prices.size()), 8, RoundingMode.HALF_UP);
-    }
-    
-
-    public double getAveragePriceForCoin(String coin) {
-        String hashKey = "coin:" + coin;
-        // Get all entries for the coin
-        Map<Object, Object> entries = redisTemplate.opsForHash().entries(hashKey);
-        List<Double> prices = new ArrayList<>();
-        // Extract and parse price values
-        for (Map.Entry<Object, Object> entry : entries.entrySet()) {
-            String key = (String) entry.getKey();
-            if (key.startsWith("price:")) {
-                String priceStr = (String) entry.getValue();
-                prices.add(Double.parseDouble(priceStr));
-            }
-        }
-        // Calculate average
-        if (prices.isEmpty()) {
-            return 0.0;
-        }
-        double sum = prices.stream().mapToDouble(Double::doubleValue).sum();
-        return sum / prices.size();
+        // Set the scale to 8 decimal places and rounding mode
+        BigDecimal average = sum.divide(new BigDecimal(prices.size()), 8, RoundingMode.HALF_UP);
+        long endTime = System.nanoTime();
+        long processingTime = (endTime - startTime) / 1_000_000; // Convert to milliseconds
+        logger.info("crypto.price.calc.average.coin.redis.time for {}: {} [{}ms]", coin, average, processingTime);
+        // Send metric to metrics server
+        Timer timer = Timer.builder("crypto.price.calc.average.coin.redis.time")
+                .description("Time taken to calculate average price for a given coin")
+                .register(meterRegistry);
+        timer.record(processingTime, TimeUnit.MILLISECONDS);
+        return average;
     }
 
-    public BigDecimal getAveragePriceByCoinInRange(String coin, int range, String unit) {
+    @Override
+    public BigDecimal getAveragePriceByCoinInRange(String coin, int range, String unit) {    
+        long startTime = System.nanoTime();    
         String hashKey = "coin:" + coin;
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(hashKey);
-        long now = System.currentTimeMillis() / 1000; // convert to seconds
-        long startTime = getStartTime(now, range, unit);
-    
         List<BigDecimal> prices = entries.entrySet().stream()
                 .filter(entry -> ((String) entry.getKey()).startsWith("price:"))
                 .filter(entry -> {
@@ -147,7 +139,19 @@ public class RedisAdapter implements PriceService {
         }
     
         BigDecimal sum = prices.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
-        return sum.divide(new BigDecimal(prices.size()));
+        BigDecimal average = sum.divide(new BigDecimal(prices.size()));
+        logger.info("getAveragePriceByCoinInRange {} {} {} = {}", coin, range, unit, average);
+        long endTime = System.nanoTime();
+        long processingTime = (endTime - startTime) / 1_000_000; // Convert to milliseconds
+
+        logger.info("crypto.price.calc.average.coin.range.redis.time for {}: {} [{}ms]", coin, average, processingTime);
+
+        // Send metric to metrics server
+        Timer timer = Timer.builder("crypto.price.calc.average.coin.range.redis.time")
+        .description("Time taken to calculate average price in a given time range for a given coin")
+        .register(meterRegistry);
+        timer.record(processingTime, TimeUnit.MILLISECONDS);
+        return average;
     }
     
     private long getStartTime(long now, int range, String unit) {
@@ -169,6 +173,27 @@ public class RedisAdapter implements PriceService {
                 throw new RuntimeException("Invalid unit: " + unit);
         }
         return startTime;
+    }
+
+    public double getAveragePriceForCoin(String coin) {
+        String hashKey = "coin:" + coin;
+        // Get all entries for the coin
+        Map<Object, Object> entries = redisTemplate.opsForHash().entries(hashKey);
+        List<Double> prices = new ArrayList<>();
+        // Extract and parse price values
+        for (Map.Entry<Object, Object> entry : entries.entrySet()) {
+            String key = (String) entry.getKey();
+            if (key.startsWith("price:")) {
+                String priceStr = (String) entry.getValue();
+                prices.add(Double.parseDouble(priceStr));
+            }
+        }
+        // Calculate average
+        if (prices.isEmpty()) {
+            return 0.0;
+        }
+        double sum = prices.stream().mapToDouble(Double::doubleValue).sum();
+        return sum / prices.size();
     }
 
 }

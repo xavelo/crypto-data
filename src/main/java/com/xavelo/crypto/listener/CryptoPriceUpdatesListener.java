@@ -57,9 +57,9 @@ public class CryptoPriceUpdatesListener {
         Price price = objectMapper.readValue(message, Price.class);
         saveToMongo(price);
         saveToRedis(price);
-        getAveragePrice(price.getCoin());
-        getLastPrice(price.getCoin());
+  
         priceService.getAveragePriceByCoin(price.getCoin());
+        priceService.getAveragePriceByCoinInRange(price.getCoin(), 5, "m");
 
         // End timer
         long endTime = System.nanoTime();

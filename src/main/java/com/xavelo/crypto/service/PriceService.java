@@ -10,4 +10,5 @@ public interface PriceService {
     public void savePriceUpdate(Price price);
     public BigDecimal getLastPriceByCoin(String coin);
     public BigDecimal getAveragePriceByCoin(String coin);
+    public BigDecimal getAveragePriceByCoinInRange(String coin, int range, String unit);
 }
