@@ -85,7 +85,7 @@ public class CryptoPriceUpdatesListener {
                 .register(meterRegistry);
         timer.record(processingTime, TimeUnit.MILLISECONDS);
 
-        logger.info("average Bitcoin price: {}", redisAdapter.getAveragePriceByCoin("BTC"));
+        // logger.info("average Bitcoin price: {}", redisAdapter.getAveragePriceByCoin("BTC"));
 
     }
 
