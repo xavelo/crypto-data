@@ -14,7 +14,8 @@ public class CustomInstantSerializer extends JsonSerializer<Instant> {
     @Override
     public void serialize(Instant value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         ZonedDateTime zdt = value.atZone(ZoneId.of("Europe/Madrid"));
-        String formattedDate = zdt.format(DateTimeFormatter.ISO_ZONED_DATE_TIME);
+        // Custom date format
+        String formattedDate = zdt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z"));
         gen.writeString(formattedDate);
     }
 }
