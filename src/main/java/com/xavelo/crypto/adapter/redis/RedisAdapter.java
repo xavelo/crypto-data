@@ -3,6 +3,8 @@ package com.xavelo.crypto.adapter.redis;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
+import java.time.ZonedDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -110,14 +112,15 @@ public class RedisAdapter implements PriceService {
         String hashKey = "coin:" + coin;
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(hashKey);
         BigDecimal lastPrice = null;
-        Instant lastTimestamp = null;
+        ZonedDateTime lastTimestamp = null; // Change to ZonedDateTime
         String lastCurrency = null;
         
         for (Map.Entry<Object, Object> entry : entries.entrySet()) {
             String key = (String) entry.getKey();
             String value = (String) entry.getValue();
             if (key.startsWith("price:")) {
-                Instant timestamp = Instant.ofEpochMilli(Long.parseLong(key.split(":")[1]));
+                long epochMilli = Long.parseLong(key.split(":")[1]);
+                ZonedDateTime timestamp = ZonedDateTime.ofInstant(Instant.ofEpochMilli(epochMilli), ZoneId.of("Europe/Madrid")); // Convert to Madrid timezone
                 if (lastTimestamp == null || timestamp.isAfter(lastTimestamp)) {
                     lastPrice = new BigDecimal(value);
                     lastTimestamp = timestamp;
@@ -126,7 +129,7 @@ public class RedisAdapter implements PriceService {
                 lastCurrency = (String) value;
             }
         }
-        return new Price(coin, lastPrice, lastCurrency, lastTimestamp);
+        return new Price(coin, lastPrice, lastCurrency, lastTimestamp != null ? lastTimestamp.toInstant() : null); // Convert back to Instant if needed
     }
 
     @Override
