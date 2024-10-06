@@ -2,10 +2,10 @@ package com.xavelo.crypto.listener;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.xavelo.crypto.Price;
 import com.xavelo.crypto.adapter.mongo.PriceDocument;
 import com.xavelo.crypto.adapter.mongo.PriceRepository;
 import com.xavelo.crypto.service.PriceService;
+import com.xavelo.crypto.model.Price;
 
 import java.util.concurrent.TimeUnit;
 

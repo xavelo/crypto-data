@@ -19,7 +19,7 @@ import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 
 import com.xavelo.crypto.service.PriceService;
-import com.xavelo.crypto.Price;
+import com.xavelo.crypto.model.Price;
 
 @Component
 public class RedisAdapter implements PriceService {
@@ -105,11 +105,13 @@ public class RedisAdapter implements PriceService {
 
 
     @Override
-    public BigDecimal getLastPriceByCoin(String coin) {
+    public Price getLastPriceByCoin(String coin) {
         String hashKey = "coin:" + coin;
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(hashKey);
         BigDecimal lastPrice = null;
         Instant lastTimestamp = null;
+        String lastCurrency = null;
+        
         for (Map.Entry<Object, Object> entry : entries.entrySet()) {
             String key = (String) entry.getKey();
             String value = (String) entry.getValue();
@@ -119,10 +121,13 @@ public class RedisAdapter implements PriceService {
                     lastPrice = new BigDecimal(value);
                     lastTimestamp = timestamp;
                 }
+            } else if (key.startsWith("currency:")) {
+                lastCurrency = (String) value;
             }
         }
-        return lastPrice;
+        return new Price(coin, lastPrice, lastCurrency, lastTimestamp);
     }
+    
 
     @Override
     public BigDecimal getAveragePriceByCoin(String coin) {

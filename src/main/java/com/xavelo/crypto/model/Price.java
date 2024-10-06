@@ -1,4 +1,4 @@
-package com.xavelo.crypto;
+package com.xavelo.crypto.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

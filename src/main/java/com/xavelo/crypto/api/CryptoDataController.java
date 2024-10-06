@@ -11,8 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.math.BigDecimal;
-import java.util.List; // Moved to the correct position
+import java.math.BigDecimal; // Moved to the correct position
 
 @RestController
 public class CryptoDataController {
@@ -22,11 +21,9 @@ public class CryptoDataController {
     @Value("${HOSTNAME:unknown}")
     private String podName;
 
-    private final DataService dataService;
     private final PriceService priceService;
 
-    public CryptoDataController(DataService dataService, PriceService priceService) {
-        this.dataService = dataService;
+    public CryptoDataController(PriceService priceService) {        
         this.priceService = priceService;
     }
 
