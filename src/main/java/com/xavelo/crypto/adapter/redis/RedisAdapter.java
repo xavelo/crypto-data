@@ -134,6 +134,10 @@ public class RedisAdapter implements PriceService {
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(hashKey);
         long now = System.currentTimeMillis();
         long targetTimestamp = getStartTime(now, range, unit);
+        
+        // Log the targetTimestamp for debugging
+        logger.info("targetTimestamp for coin {}: {}", coin, Instant.ofEpochMilli(targetTimestamp));
+        
         Price historicalPrice = null;
         long margin = 30 * 1000; // 30 seconds in milliseconds
 
