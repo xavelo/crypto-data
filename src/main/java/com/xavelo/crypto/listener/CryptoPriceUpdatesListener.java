@@ -20,6 +20,8 @@ import org.springframework.stereotype.Service;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
+import java.time.ZoneId;
+import java.time.Instant;
 
 @Service
 public class CryptoPriceUpdatesListener {
@@ -51,6 +53,8 @@ public class CryptoPriceUpdatesListener {
         long startTime = System.nanoTime();
 
         Price price = objectMapper.readValue(message, Price.class);
+        logger.info("timestamp {}", price.getTimestamp().atZone(ZoneId.of("Europe/Madrid")).toString());
+
         saveToMongo(price);
         priceService.savePriceUpdate(price);
 
