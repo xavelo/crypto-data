@@ -5,10 +5,10 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set; // {{ edit_1 }}
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import java.time.Duration; // Add this import
+import java.time.Duration;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +20,8 @@ import io.micrometer.core.instrument.Timer;
 
 import com.xavelo.crypto.service.PriceService;
 import com.xavelo.crypto.model.Price;
+
+import java.util.HashMap; // {{ edit_1 }}
 
 @Component
 public class RedisAdapter implements PriceService {
@@ -219,21 +221,22 @@ public class RedisAdapter implements PriceService {
         return startTime;
     }   
 
+    @Override
     public List<Price> getPriceUpdatesByCoin(String coin) {
         String hashKey = "coin:" + coin;
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(hashKey);
         List<Price> prices = new ArrayList<>();
+        Map<Long, String> currencyMap = new HashMap<>(); // {{ edit_1 }}
+
         for (Map.Entry<Object, Object> entry : entries.entrySet()) {
             String key = (String) entry.getKey();
             String value = (String) entry.getValue();
             if (key.startsWith("price:")) {
                 Instant timestamp = Instant.ofEpochMilli(Long.parseLong(key.split(":")[1]));
-                Price price = new Price(coin, new BigDecimal(value), null, timestamp);
-                prices.add(price);
+                prices.add(new Price(coin, new BigDecimal(value), currencyMap.getOrDefault(timestamp.toEpochMilli(), null), timestamp)); // {{ edit_2 }}
             } else if (key.startsWith("currency:")) {
                 Instant timestamp = Instant.ofEpochMilli(Long.parseLong(key.split(":")[1]));
-                // You can store the currency in a separate data structure or in the same hash set
-                // For simplicity, I'm ignoring the currency for now
+                currencyMap.put(timestamp.toEpochMilli(), (String) value); // {{ edit_3 }}
             }
         }
         return prices;

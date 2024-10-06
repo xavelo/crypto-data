@@ -1,10 +1,9 @@
 package com.xavelo.crypto.service;
 
-import java.math.BigDecimal; // Add this import statement
-
-import org.springframework.stereotype.Service;
-
 import com.xavelo.crypto.model.Price;
+import java.math.BigDecimal;
+import java.util.List;
+import org.springframework.stereotype.Service;
 
 @Service
 public interface PriceService {
@@ -15,4 +14,5 @@ public interface PriceService {
     public Price getLastPriceByCoin(String coin);
     public Price getHistoricalPriceByCoin(String coin, int range, String unit);
     public BigDecimal getAveragePriceByCoinInRange(String coin, int range, String unit);
+    public List<Price> getPriceUpdatesByCoin(String coin);
 }
