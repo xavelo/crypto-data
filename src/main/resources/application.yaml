@@ -28,16 +28,15 @@ management:
   endpoints:
     web:
       exposure:
-        include: "prometheus,health,info,metrics"  # Expose the Prometheus endpoint
+        include: "prometheus,health,info,metrics"
   endpoint:
     prometheus:
-      enabled: true  # Enable the Prometheus endpoint
-      management.metrics.export.influx.enabled=true
-  metrics:
-    export:
-      influx:
-        bucket: ${spring.influx.bucket}
-        org: ${spring.influx.org}
-        token: ${spring.influx.token}
-        uri: ${spring.influx.url}
+      enabled: true
+  export:
+    influx:
+      enabled: true
+      bucket: ${spring.influx.bucket}
+      org: ${spring.influx.org}
+      token: ${spring.influx.token}
+      uri: ${spring.influx.url}
   
