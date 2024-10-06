@@ -9,6 +9,6 @@ import java.util.List;
 @Service
 public interface DashboardService {
     
-    public List<Price> listPrices();
+    public List<Price> getPrices();
 
 }

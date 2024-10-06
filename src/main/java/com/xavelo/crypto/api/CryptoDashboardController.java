@@ -20,9 +20,9 @@ public class CryptoDashboardController {
         this.dashboardService = dashboardService;
     }
 
-    @GetMapping("/listPrices")
+    @GetMapping("/prices")
     public ResponseEntity<List<Price>> listPrices() {
-        return ResponseEntity.ok(dashboardService.listPrices());
+        return ResponseEntity.ok(dashboardService.getPrices());
     }
 
 }

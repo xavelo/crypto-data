@@ -14,7 +14,7 @@ public class DashboardServiceImpl implements DashboardService {
         this.priceService = priceService;
     }
     
-    public List<Price> listPrices() {
+    public List<Price> getPrices() {
         List<Price> prices = new ArrayList<>();
         for (Coin coin : Coin.values()) {            
             prices.add(priceService.getLastPriceByCoin(coin.name()));
