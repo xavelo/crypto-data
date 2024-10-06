@@ -136,6 +136,7 @@ public class RedisAdapter implements PriceService {
         long targetTimestamp = getStartTime(now, range, unit);
         Price historicalPrice = null;
 
+        // First pass to find the closest historical price
         for (Map.Entry<Object, Object> entry : entries.entrySet()) {
             String key = (String) entry.getKey();
             String value = (String) entry.getValue();
@@ -147,6 +148,25 @@ public class RedisAdapter implements PriceService {
                     Math.abs(timestamp - targetTimestamp) < Math.abs(historicalPrice.getTimestamp().toEpochMilli() - targetTimestamp))) { 
                     historicalPrice = new Price(coin, new BigDecimal(value), null, Instant.ofEpochMilli(timestamp));
                     logger.info("historicalPrice {} - timestamp {}", value, timestamp);
+                }
+            }
+        }
+
+        // If no historical price found, check with a 30 seconds margin
+        if (historicalPrice == null) {
+            long margin = 30 * 1000; // 30 seconds in milliseconds
+            for (Map.Entry<Object, Object> entry : entries.entrySet()) {
+                String key = (String) entry.getKey();
+                String value = (String) entry.getValue();
+                if (key.startsWith("price:")) {
+                    long timestamp = Long.parseLong(key.split(":")[1]);
+                    // Check if the timestamp is within the range with a 30 seconds margin
+                    if (timestamp <= now && timestamp >= (targetTimestamp - margin) && 
+                        (historicalPrice == null || 
+                        Math.abs(timestamp - targetTimestamp) < Math.abs(historicalPrice.getTimestamp().toEpochMilli() - targetTimestamp))) { 
+                        historicalPrice = new Price(coin, new BigDecimal(value), null, Instant.ofEpochMilli(timestamp));
+                        logger.info("historicalPrice with margin {} - timestamp {}", value, timestamp);
+                    }
                 }
             }
         }
