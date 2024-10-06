@@ -1,7 +1,5 @@
 package com.xavelo.crypto.api;
 
-import com.xavelo.crypto.adapter.mongo.PriceDocument;
-import com.xavelo.crypto.data.DataService;
 import com.xavelo.crypto.service.PriceService; // Moved to the correct position
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -12,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal; // Moved to the correct position
+import com.xavelo.crypto.model.Price; // Ensure this import is present
 
 @RestController
 public class CryptoDataController {
@@ -52,8 +51,8 @@ public class CryptoDataController {
     }
 
     @GetMapping("/price/{coin}")
-    public ResponseEntity<BigDecimal> getPriceByCoin(@PathVariable String coin) {
-        BigDecimal price = priceService.getAveragePriceByCoin(coin);
+    public ResponseEntity<Price> getPriceByCoin(@PathVariable String coin) {
+        Price price = priceService.getLastPriceByCoin(coin);
         return ResponseEntity.ok(price);
     }
 
