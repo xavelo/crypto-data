@@ -141,8 +141,10 @@ public class RedisAdapter implements PriceService {
             String value = (String) entry.getValue();
             if (key.startsWith("price:")) {
                 long timestamp = Long.parseLong(key.split(":")[1]);
-                // Check if the timestamp is the closest to the target timestamp
-                if (timestamp <= now && (historicalPrice == null || Math.abs(timestamp - targetTimestamp) < Math.abs(historicalPrice.getTimestamp().toEpochMilli() - targetTimestamp))) {
+                // Check if the timestamp is within the range and closest to the target timestamp
+                if (timestamp <= now && timestamp >= targetTimestamp && 
+                    (historicalPrice == null || 
+                    Math.abs(timestamp - targetTimestamp) < Math.abs(historicalPrice.getTimestamp().toEpochMilli() - targetTimestamp))) { 
                     historicalPrice = new Price(coin, new BigDecimal(value), null, Instant.ofEpochMilli(timestamp));
                     logger.info("historicalPrice {} - timestamp {}", value, timestamp);
                 }
