@@ -27,17 +27,17 @@ public class CryptoPriceUpdatesListener {
     private static final Logger logger = LoggerFactory.getLogger(CryptoPriceUpdatesListener.class);
 
     private final PriceService priceService;
-    private final PriceRepository repository;
+    private final PriceRepository mongoPricerepository;
     private final ObjectMapper objectMapper;
     private final MeterRegistry meterRegistry;
     
     @Autowired
     public CryptoPriceUpdatesListener(PriceService priceService, 
-                                      PriceRepository repository,                                     
+                                      PriceRepository mongoPricerepository,                                     
                                       ObjectMapper objectMapper, 
                                       MeterRegistry meterRegistry) {
         this.priceService = priceService;
-        this.repository = repository;
+        this.mongoPricerepository = mongoPricerepository;
         this.objectMapper = objectMapper;
         this.meterRegistry = meterRegistry;
     }
@@ -53,8 +53,6 @@ public class CryptoPriceUpdatesListener {
         Price price = objectMapper.readValue(message, Price.class);
         saveToMongo(price);
         priceService.savePriceUpdate(price);
-        priceService.getAveragePriceByCoin(price.getCoin());
-        priceService.getAveragePriceByCoinInRange(price.getCoin(), 1, "h");
 
         // End timer
         long endTime = System.nanoTime();
@@ -80,7 +78,7 @@ public class CryptoPriceUpdatesListener {
             price.getPrice(),
             price.getCurrency()
         );
-        repository.save(document);
+        mongoPricerepository.save(document);
         long endTime = System.nanoTime();
         long processingTime = (endTime - startTime) / 1_000_000; // Convert to milliseconds
         logger.info("crypto.price.save.mongo.time: {}ms", processingTime);
