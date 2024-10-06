@@ -48,22 +48,16 @@ public class CryptoDataController {
         return ResponseEntity.ok(priceUpdatesCount);
     }
 
-    @GetMapping("/prices/{coin}/last/{hours}/h")
-    public ResponseEntity<List<PriceDocument>> pricesByCoinLastHours(@PathVariable String coin, @PathVariable int hours) {
-        List<PriceDocument> prices = dataService.getPricesByCoinLastHours(coin, hours);
-        return ResponseEntity.ok(prices);
+    @GetMapping("/price/{coin}")
+    public ResponseEntity<BigDecimal> getPriceByCoin(@PathVariable String coin) {
+        BigDecimal price = priceService.getAveragePriceByCoin(coin);
+        return ResponseEntity.ok(price);
     }
 
-    @GetMapping("/prices/{coin}/last/{days}/d")
-    public ResponseEntity<List<PriceDocument>> pricesByCoinLastDays(@PathVariable String coin, @PathVariable int days) {
-        List<PriceDocument> prices = dataService.getPricesByCoinLastHours(coin, days * 24);
-        return ResponseEntity.ok(prices);
-    }
-
-    @GetMapping("/price/{coin}/average/{hours}/h")
-    public ResponseEntity<BigDecimal> averagePricesByCoin(@PathVariable String coin, @PathVariable int hours) {
-        BigDecimal averagePrice = dataService.getAveragePriceByCoinLastHours(coin, hours);
-        return ResponseEntity.ok(averagePrice);
+    @GetMapping("/price/{coin}/average/{range}/{unit}")
+    public ResponseEntity<BigDecimal> pricesByCoinLastHours(@PathVariable String coin, @PathVariable int range, @PathVariable String unit) {
+        BigDecimal average = priceService.getAveragePriceByCoinInRange(coin, range, unit);
+        return ResponseEntity.ok(average);
     }
 
 }
