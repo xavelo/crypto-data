@@ -52,13 +52,12 @@ public class CryptoPriceUpdatesListener {
         long startTime = System.nanoTime();
 
         Price price = objectMapper.readValue(message, Price.class);
-        logger.info("timestamp {}", price.getTimestamp().atZone(ZoneId.of("Europe/Madrid")).toString());
+        //logger.info("timestamp {}", price.getTimestamp().atZone(ZoneId.of("Europe/Madrid")).toString());
 
         saveToMongo(price);
         priceService.savePriceUpdate(price);
 
-        long endTime = System.nanoTime();
-        long processingTime = (endTime - startTime) / 1_000_000; // Convert to milliseconds
+        long processingTime = (System.nanoTime() - startTime) / 1_000_000; // Convert to milliseconds
         //logger.info("crypto.price.processing.time: {}ms", processingTime);
 
         Timer timer = Timer.builder("crypto.price.processing.time")

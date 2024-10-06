@@ -113,7 +113,7 @@ public class RedisAdapter implements PriceService {
         String hashKey = "coin:" + coin;
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(hashKey);
         BigDecimal lastPrice = null;
-        ZonedDateTime lastTimestamp = null; // Change to ZonedDateTime
+        Instant lastTimestamp = null;
         String lastCurrency = null;
         
         for (Map.Entry<Object, Object> entry : entries.entrySet()) {
@@ -121,7 +121,7 @@ public class RedisAdapter implements PriceService {
             String value = (String) entry.getValue();
             if (key.startsWith("price:")) {
                 long epochMilli = Long.parseLong(key.split(":")[1]);
-                ZonedDateTime timestamp = Instant.ofEpochMilli(epochMilli).atZone(ZoneId.of("Europe/Madrid")); 
+                Instant timestamp = Instant.ofEpochMilli(epochMilli); 
                 if (lastTimestamp == null || timestamp.isAfter(lastTimestamp)) {
                     lastPrice = new BigDecimal(value);
                     lastTimestamp = timestamp;
@@ -130,8 +130,8 @@ public class RedisAdapter implements PriceService {
                 lastCurrency = (String) value;
             }
         }
-        logger.info("lastTimestamp: {}", lastTimestamp.withZoneSameInstant(ZoneId.of("Europe/Madrid")).toInstant());
-        return new Price(coin, lastPrice, lastCurrency, lastTimestamp.withZoneSameInstant(ZoneId.of("Europe/Madrid")).toInstant()); 
+        logger.info("lastTimestamp: {}", lastTimestamp.atZone(ZoneId.of("Europe/Madrid")).toString());
+        return new Price(coin, lastPrice, lastCurrency, lastTimestamp); 
     }
 
     @Override
