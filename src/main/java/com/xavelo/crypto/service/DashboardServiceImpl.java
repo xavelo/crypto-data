@@ -5,14 +5,19 @@ import java.util.List;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.xavelo.crypto.model.Price;
 import com.xavelo.crypto.model.Trend;
+import com.xavelo.crypto.adapter.redis.RedisAdapter;
 import com.xavelo.crypto.model.Coin;
 
 @Component
 public class DashboardServiceImpl implements DashboardService {
+
+    private static final Logger logger = LoggerFactory.getLogger(DashboardServiceImpl.class);
 
     private PriceService priceService;
 
@@ -29,17 +34,12 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     public Trend getTrend(String coin, int range, String unit) {
-        // Get the current price
+        logger.info("getTrend {} {}{}", coin, range, unit);
         Price currentPrice = priceService.getLastPriceByCoin(coin);
-        
-        // Get the historical price based on the range and unit
         Price historicalPrice = priceService.getHistoricalPriceByCoin(coin, range, unit);
-        
-        // Calculate absolute value and percentage variation using BigDecimal        
         BigDecimal absoluteVariation = currentPrice.getPrice().subtract(historicalPrice.getPrice());
         double percentageVariation = absoluteVariation.divide(historicalPrice.getPrice(), RoundingMode.HALF_UP).multiply(BigDecimal.valueOf(100)).doubleValue();
-
-        // Create and return the Trend object
+        logger.info("currentPrice {} - historicalPrice {} - percentage {}", currentPrice, historicalPrice, percentageVariation);
         return new Trend(coin, absoluteVariation.compareTo(BigDecimal.ZERO) >= 0, percentageVariation, absoluteVariation);
     }
     
