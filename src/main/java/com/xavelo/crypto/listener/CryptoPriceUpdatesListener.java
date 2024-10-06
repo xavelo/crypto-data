@@ -46,19 +46,16 @@ public class CryptoPriceUpdatesListener {
 
     @KafkaListener(topics = "crypto-price-updates-topic", groupId = "crypto-price-updates-group", containerFactory = "kafkaListenerContainerFactory")
     public void consume(@Payload String message, @Header(KafkaHeaders.RECEIVED_KEY) String key) throws JsonProcessingException, InterruptedException {
-        logger.info(" ");
         logger.info("Received message: key {} - value {}", key, message);
 
         long startTime = System.nanoTime();
 
         Price price = objectMapper.readValue(message, Price.class);
-        //logger.info("timestamp {}", price.getTimestamp().atZone(ZoneId.of("Europe/Madrid")).toString());
-
         saveToMongo(price);
         priceService.savePriceUpdate(price);
 
         long processingTime = (System.nanoTime() - startTime) / 1_000_000; // Convert to milliseconds
-        //logger.info("crypto.price.processing.time: {}ms", processingTime);
+        logger.info("crypto.price.processing.time: {}ms", processingTime);
 
         Timer timer = Timer.builder("crypto.price.processing.time")
                 .description("Time taken to process crypto price updates")
@@ -77,7 +74,7 @@ public class CryptoPriceUpdatesListener {
         mongoPricerepository.save(document);
         long endTime = System.nanoTime();
         long processingTime = (endTime - startTime) / 1_000_000; // Convert to milliseconds
-        //logger.info("crypto.price.save.mongo.time: {}ms", processingTime);
+        logger.info("crypto.price.save.mongo.time: {}ms", processingTime);
         
         // Send metric to metrics server
         Timer timer = Timer.builder("crypto.price.save.mongo.time")

@@ -1,14 +1,16 @@
 package com.xavelo.crypto.adapter.redis;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import java.time.Duration;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,10 +20,8 @@ import org.springframework.stereotype.Component;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 
-import com.xavelo.crypto.service.PriceService;
 import com.xavelo.crypto.model.Price;
-
-import java.util.HashMap; // {{ edit_1 }}
+import com.xavelo.crypto.service.PriceService;
 
 @Component
 public class RedisAdapter implements PriceService {
@@ -45,7 +45,7 @@ public class RedisAdapter implements PriceService {
         redisTemplate.opsForValue().set("last_price:" + price.getCoin(), price.getPrice().toString() + ":" + price.getTimestamp().toEpochMilli() + ":" + price.getCurrency());
         long endTime = System.nanoTime();
         long processingTime = (endTime - startTime) / 1_000_000;
-        //logger.info("crypto.price.save.redis.time: [{}ms]", processingTime);
+        logger.info("crypto.price.save.redis.time: [{}ms]", processingTime);
         // Send metric to metrics server
         Timer timer = Timer.builder("crypto.price.save.redis.time")
                 .description("Time taken to save crypto price updates to redis")
@@ -239,6 +239,8 @@ public class RedisAdapter implements PriceService {
                 currencyMap.put(timestamp.toEpochMilli(), (String) value); // {{ edit_3 }}
             }
         }
+        
+        Collections.reverse(prices);
         return prices;
     }
 
