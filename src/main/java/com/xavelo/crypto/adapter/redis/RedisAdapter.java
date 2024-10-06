@@ -45,7 +45,7 @@ public class RedisAdapter implements PriceService {
         redisTemplate.opsForHash().put(hashKey, "currency:" + price.getTimestamp().toEpochMilli(), price.getCurrency());
         long endTime = System.nanoTime();
         long processingTime = (endTime - startTime) / 1_000_000;
-        logger.info("crypto.price.save.redis.time: [{}ms]", processingTime);
+        //logger.info("crypto.price.save.redis.time: [{}ms]", processingTime);
         // Send metric to metrics server
         Timer timer = Timer.builder("crypto.price.save.redis.time")
                 .description("Time taken to save crypto price updates to redis")
@@ -120,7 +120,7 @@ public class RedisAdapter implements PriceService {
             String value = (String) entry.getValue();
             if (key.startsWith("price:")) {
                 long epochMilli = Long.parseLong(key.split(":")[1]);
-                ZonedDateTime timestamp = ZonedDateTime.ofInstant(Instant.ofEpochMilli(epochMilli), ZoneId.of("Europe/Madrid")); // Convert to Madrid timezone
+                ZonedDateTime timestamp = ZonedDateTime.ofInstant(Instant.ofEpochMilli(epochMilli), ZoneId.of("Europe/Madrid")); 
                 if (lastTimestamp == null || timestamp.isAfter(lastTimestamp)) {
                     lastPrice = new BigDecimal(value);
                     lastTimestamp = timestamp;
@@ -129,7 +129,8 @@ public class RedisAdapter implements PriceService {
                 lastCurrency = (String) value;
             }
         }
-        return new Price(coin, lastPrice, lastCurrency, lastTimestamp.withZoneSameInstant(ZoneId.of("Europe/Madrid")).toInstant()); // Convert back to Instant in Madrid timezone
+        logger.info("lastTimestamp: {}", lastTimestamp.withZoneSameInstant(ZoneId.of("Europe/Madrid")).toInstant());
+        return new Price(coin, lastPrice, lastCurrency, lastTimestamp.withZoneSameInstant(ZoneId.of("Europe/Madrid")).toInstant()); 
     }
 
     @Override

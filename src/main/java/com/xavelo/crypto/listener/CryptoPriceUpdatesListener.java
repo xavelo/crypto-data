@@ -49,7 +49,6 @@ public class CryptoPriceUpdatesListener {
         logger.info(" ");
         logger.info("Received message: key {} - value {}", key, message);
 
-        // Start timer
         long startTime = System.nanoTime();
 
         Price price = objectMapper.readValue(message, Price.class);
@@ -58,20 +57,14 @@ public class CryptoPriceUpdatesListener {
         saveToMongo(price);
         priceService.savePriceUpdate(price);
 
-        // End timer
         long endTime = System.nanoTime();
-        
-        // Calculate processing time in milliseconds
         long processingTime = (endTime - startTime) / 1_000_000; // Convert to milliseconds
-        
-        logger.info("crypto.price.processing.time: {}ms", processingTime);
-        
-        // Send metric to metrics server
+        //logger.info("crypto.price.processing.time: {}ms", processingTime);
+
         Timer timer = Timer.builder("crypto.price.processing.time")
                 .description("Time taken to process crypto price updates")
                 .register(meterRegistry);
         timer.record(processingTime, TimeUnit.MILLISECONDS);
-
     }
 
     private void saveToMongo(Price price) {
@@ -85,7 +78,7 @@ public class CryptoPriceUpdatesListener {
         mongoPricerepository.save(document);
         long endTime = System.nanoTime();
         long processingTime = (endTime - startTime) / 1_000_000; // Convert to milliseconds
-        logger.info("crypto.price.save.mongo.time: {}ms", processingTime);
+        //logger.info("crypto.price.save.mongo.time: {}ms", processingTime);
         
         // Send metric to metrics server
         Timer timer = Timer.builder("crypto.price.save.mongo.time")
