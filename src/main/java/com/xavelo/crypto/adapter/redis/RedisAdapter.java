@@ -127,7 +127,28 @@ public class RedisAdapter implements PriceService {
         }
         return new Price(coin, lastPrice, lastCurrency, lastTimestamp);
     }
-    
+
+    @Override
+    public Price getHistoricalPriceByCoin(String coin, int range, String unit) {
+        String hashKey = "coin:" + coin;
+        Map<Object, Object> entries = redisTemplate.opsForHash().entries(hashKey);
+        long now = System.currentTimeMillis();
+        long targetTimestamp = getStartTime(now, range, unit); // Calculate target timestamp
+        Price historicalPrice = null;
+
+        for (Map.Entry<Object, Object> entry : entries.entrySet()) {
+            String key = (String) entry.getKey();
+            String value = (String) entry.getValue();
+            if (key.startsWith("price:")) {
+                long timestamp = Long.parseLong(key.split(":")[1]);
+                // Check if the timestamp is the closest to the target timestamp
+                if (timestamp <= now && (historicalPrice == null || Math.abs(timestamp - targetTimestamp) < Math.abs(historicalPrice.getTimestamp().toEpochMilli() - targetTimestamp))) {
+                    historicalPrice = new Price(coin, new BigDecimal(value), null, Instant.ofEpochMilli(timestamp));
+                }
+            }
+        }
+        return historicalPrice; // Return the price at the specified moment in time
+    }
 
     @Override
     public BigDecimal getAveragePriceByCoin(String coin) {
