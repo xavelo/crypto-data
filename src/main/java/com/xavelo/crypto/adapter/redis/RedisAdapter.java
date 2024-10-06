@@ -233,16 +233,16 @@ public class RedisAdapter implements PriceService {
         long startTime;
         switch (unit) {
             case "s":
-                startTime = now - range;
+                startTime = now - range * 1000; // Multiply by 1000 for seconds
                 break;
             case "m":
-                startTime = now - range * 60;
+                startTime = now - range * 60 * 1000; // Multiply by 60, then by 1000 for minutes
                 break;
             case "h":
-                startTime = now - range * 3600;
+                startTime = now - range * 3600 * 1000; // Multiply by 3600, then by 1000 for hours
                 break;
             case "d":
-                startTime = now - range * 86400;
+                startTime = now - range * 86400 * 1000; // Multiply by 86400, then by 1000 for days
                 break;
             default:
                 throw new RuntimeException("Invalid unit: " + unit);
