@@ -2,6 +2,7 @@ package com.xavelo.crypto.listener;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.xavelo.crypto.adapter.influxdb.InfluxDBAdapter;
 import com.xavelo.crypto.adapter.mongo.PriceDocument;
 import com.xavelo.crypto.adapter.mongo.PriceRepository;
 import com.xavelo.crypto.service.PriceService;
@@ -30,16 +31,18 @@ public class CryptoPriceUpdatesListener {
 
     private final PriceService priceService;
     private final PriceRepository mongoPricerepository;
+    private final InfluxDBAdapter influxDBAdapter;
     private final ObjectMapper objectMapper;
     private final MeterRegistry meterRegistry;
     
-    @Autowired
     public CryptoPriceUpdatesListener(PriceService priceService, 
-                                      PriceRepository mongoPricerepository,                                     
+                                      PriceRepository mongoPricerepository,
+                                      InfluxDBAdapter influxDBAdapter,                                   
                                       ObjectMapper objectMapper, 
                                       MeterRegistry meterRegistry) {
         this.priceService = priceService;
         this.mongoPricerepository = mongoPricerepository;
+        this.influxDBAdapter = influxDBAdapter;
         this.objectMapper = objectMapper;
         this.meterRegistry = meterRegistry;
     }
@@ -53,6 +56,7 @@ public class CryptoPriceUpdatesListener {
         Price price = objectMapper.readValue(message, Price.class);
         saveToMongo(price);
         priceService.savePriceUpdate(price);
+        influxDBAdapter.writePriceUpdate(price);
 
         long processingTime = (System.nanoTime() - startTime) / 1_000_000; // Convert to milliseconds
         logger.info("crypto.price.processing.time: {}ms", processingTime);
