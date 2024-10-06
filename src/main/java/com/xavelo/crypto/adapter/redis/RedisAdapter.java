@@ -47,13 +47,7 @@ public class RedisAdapter implements PriceService {
         Timer timer = Timer.builder("crypto.price.save.redis.time")
                 .description("Time taken to save crypto price updates to redis")
                 .register(meterRegistry);
-        timer.record(processingTime, TimeUnit.MILLISECONDS);
-        Timer timer2 = Timer.builder("crypto.price.updates.total")
-                .description("Total number of crypto price updates stored")
-                .register(meterRegistry);
-        long totalUpdates = countPriceUpdates(); 
-        timer2.record(totalUpdates, TimeUnit.MILLISECONDS);
-        logger.info("crypto.price.updates.total: {}", totalUpdates);
+        timer.record(processingTime, TimeUnit.MILLISECONDS);    
     }
 
     @Override
