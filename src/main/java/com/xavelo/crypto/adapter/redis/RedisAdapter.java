@@ -1,20 +1,17 @@
 package com.xavelo.crypto.adapter.redis;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.Instant;
-import java.time.ZonedDateTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set; // {{ edit_1 }}
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.time.Duration; // Add this import
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
@@ -130,7 +127,6 @@ public class RedisAdapter implements PriceService {
                 lastCurrency = (String) value;
             }
         }
-        logger.info("lastTimestamp: {}", lastTimestamp.atZone(ZoneId.of("Europe/Madrid")).toString());
         return new Price(coin, lastPrice, lastCurrency, lastTimestamp); 
     }
 
@@ -138,12 +134,12 @@ public class RedisAdapter implements PriceService {
     public Price getHistoricalPriceByCoin(String coin, int range, String unit) {
         String hashKey = "coin:" + coin;
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(hashKey);
-        // Get the current time in Madrid timezone
         
-        long targetTimestamp = getStartTime(getNow(), range, unit);
+        Instant now = Instant.now();
+        Instant targetTimestamp = Instant.ofEpochMilli(getStartTime(System.currentTimeMillis(), range, unit));
         
         // Log the targetTimestamp for debugging
-        logger.info("targetTimestamp for coin {}: {} - now {}", coin, Instant.ofEpochMilli(targetTimestamp), getNow());
+        logger.info("targetTimestamp for coin {}: {} - now {}", coin, targetTimestamp, now);
         
         Price historicalPrice = null;
         long margin = 30 * 1000; // 30 seconds in milliseconds
@@ -153,64 +149,21 @@ public class RedisAdapter implements PriceService {
             String key = (String) entry.getKey();
             String value = (String) entry.getValue();
             if (key.startsWith("price:")) {
-                long timestamp = Long.parseLong(key.split(":")[1]);
+                Instant timestamp = Instant.ofEpochMilli(Long.parseLong(key.split(":")[1]));
                 // Check if the timestamp is within the range with a 30 seconds margin
-                if (timestamp <= getNow() && timestamp >= (targetTimestamp - margin) && 
+                if (timestamp.compareTo(now) <= 0 && timestamp.compareTo(targetTimestamp.minusMillis(margin)) >= 0 && 
                     (historicalPrice == null || 
-                    Math.abs(timestamp - targetTimestamp) < Math.abs(historicalPrice.getTimestamp().toEpochMilli() - targetTimestamp))) { 
-                    ZonedDateTime madridTimestamp = ZonedDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneId.of("Europe/Madrid")); // Convert to Madrid timezone
-                    logger.info("historicalPrice {} - timestamp {}", value, madridTimestamp); // Log with Madrid timezone
-                    historicalPrice = new Price(coin, new BigDecimal(value), null, 
-                        ZonedDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneId.of("Europe/Madrid")).toInstant());
-                    logger.info("historicalPrice {} - timestamp {}", value, timestamp);
+                    Duration.between(targetTimestamp, timestamp).abs().compareTo(Duration.between(targetTimestamp, historicalPrice.getTimestamp())) < 0)) { 
+                    historicalPrice = new Price(coin, new BigDecimal(value), null, timestamp);
                 }
             }
         }
-        return historicalPrice; // Return the price at the specified moment in time
-    }
-
-    private long getNow() {
-        ZonedDateTime nowMadrid = ZonedDateTime.now(ZoneId.of("Europe/Madrid"));
-        return nowMadrid.toInstant().toEpochMilli();
-    }
-
-    @Override
-    public BigDecimal getAveragePriceByCoin(String coin) {
-        long startTime = System.nanoTime();
-        String hashKey = "coin:" + coin;
-        Map<Object, Object> entries = redisTemplate.opsForHash().entries(hashKey);
-        List<BigDecimal> prices = new ArrayList<>();
-        for (Map.Entry<Object, Object> entry : entries.entrySet()) {
-            String key = (String) entry.getKey();
-            String value = (String) entry.getValue();
-            if (key.startsWith("price:")) {
-                prices.add(new BigDecimal(value));
-            }
-        }
-        BigDecimal sum = BigDecimal.ZERO;
-        for (BigDecimal price : prices) {
-            sum = sum.add(price);
-        }
-        // Handle case where no prices are found to avoid divide by zero
-        if (prices.size() == 0) {
-            return BigDecimal.ZERO;
-        }
-        // Set the scale to 8 decimal places and rounding mode
-        BigDecimal average = sum.divide(new BigDecimal(prices.size()), 8, RoundingMode.HALF_UP);
-        long endTime = System.nanoTime();
-        long processingTime = (endTime - startTime) / 1_000_000; // Convert to milliseconds
-        logger.info("crypto.price.calc.average.coin.redis.time for {}: {} [{}ms]", coin, average, processingTime);
-        // Send metric to metrics server
-        Timer timer = Timer.builder("crypto.price.calc.average.coin.redis.time")
-                .description("Time taken to calculate average price for a given coin")
-                .register(meterRegistry);
-        timer.record(processingTime, TimeUnit.MILLISECONDS);
-        return average;
+        logger.info("historicalPrice: {}", historicalPrice);
+        return historicalPrice;
     }
 
     @Override
     public BigDecimal getAveragePriceByCoinInRange(String coin, int range, String unit) {    
-        flushAllDatabases();
         long startTime = System.nanoTime();    
         String hashKey = "coin:" + coin;
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(hashKey);
@@ -263,7 +216,6 @@ public class RedisAdapter implements PriceService {
             default:
                 throw new RuntimeException("Invalid unit: " + unit);
         }
-        logger.info("getStartTime(now {}, range {}{}) = {}", now, range, unit, startTime);
         return startTime;
     }   
 
@@ -285,14 +237,6 @@ public class RedisAdapter implements PriceService {
             }
         }
         return prices;
-    }
-
-    private void flushAllDatabases() {
-        redisTemplate.execute((RedisCallback<Object>) connection -> {
-            connection.flushAll(); // Updated to use flushAll() instead of flushDb()
-            return null;
-        });
-        logger.info("All Redis databases have been flushed.");
     }
 
 }
