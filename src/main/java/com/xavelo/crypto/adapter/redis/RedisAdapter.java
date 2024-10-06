@@ -167,7 +167,23 @@ public class RedisAdapter implements PriceService {
         return startTime;
     }
 
-    private long countPriceUpdates() {
+    @Override
+    public long getPriceUpdatesCount() {
+        String pattern = "coin:*";
+        Set<String> keys = redisTemplate.keys(pattern);
+        long count = 0;
+        for (String key : keys) {
+            Map<Object, Object> entries = redisTemplate.opsForHash().entries(key);
+            // Count only fields that start with "price:"
+            count += entries.keySet().stream()
+                    .filter(k -> ((String) k).startsWith("price:"))
+                    .count();
+        }
+        return count;
+    }
+
+    @Override
+    public long getPriceUpdatesCountByCoin(String coin) {
         String pattern = "coin:*";
         Set<String> keys = redisTemplate.keys(pattern);
         long count = 0;

@@ -2,9 +2,9 @@ package com.xavelo.crypto.api;
 
 import com.xavelo.crypto.adapter.mongo.PriceDocument;
 import com.xavelo.crypto.data.DataService;
+import com.xavelo.crypto.service.PriceService; // Moved to the correct position
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
-import java.util.List;
+import java.util.List; // Moved to the correct position
 
 @RestController
 public class CryptoDataController {
@@ -22,8 +22,13 @@ public class CryptoDataController {
     @Value("${HOSTNAME:unknown}")
     private String podName;
 
-    @Autowired
-    DataService dataService;
+    private final DataService dataService;
+    private final PriceService priceService;
+
+    public CryptoDataController(DataService dataService, PriceService priceService) {
+        this.dataService = dataService;
+        this.priceService = priceService;
+    }
 
     @GetMapping("/ping")
     public ResponseEntity<String> ping() {
@@ -33,14 +38,14 @@ public class CryptoDataController {
 
     @GetMapping("/prices/count")
     public ResponseEntity<Long> count() {
-        long count = dataService.getPricesCount();
-        return ResponseEntity.ok(count);
+        long priceUpdatesCount = priceService.getPriceUpdatesCount();
+        return ResponseEntity.ok(priceUpdatesCount);
     }
 
     @GetMapping("/prices/count/{coin}")
     public ResponseEntity<Long> countByCoin(@PathVariable String coin) {
-        long count = dataService.getPricesCount(coin);
-        return ResponseEntity.ok(count);
+        long priceUpdatesCount = priceService.getPriceUpdatesCountByCoin(coin);
+        return ResponseEntity.ok(priceUpdatesCount);
     }
 
     @GetMapping("/prices/{coin}/last/{hours}/h")
