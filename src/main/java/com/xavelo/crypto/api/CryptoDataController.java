@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal; // Moved to the correct position
 import com.xavelo.crypto.model.Price; // Ensure this import is present
+import java.util.List; // {{ edit_1 }}
 
 @RestController
 public class CryptoDataController {
@@ -54,6 +55,12 @@ public class CryptoDataController {
     public ResponseEntity<Price> getPriceByCoin(@PathVariable String coin) {
         Price price = priceService.getLastPriceByCoin(coin);
         return ResponseEntity.ok(price);
+    }
+
+    @GetMapping("/prices/{coin}")
+    public ResponseEntity<List<Price>> getPricesByCoin(@PathVariable String coin) {
+        List<Price> prices = priceService.getPriceUpdatesByCoin(coin);
+        return ResponseEntity.ok(prices);
     }
 
     @GetMapping("/price/{coin}/average/{range}/{unit}")
