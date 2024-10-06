@@ -41,13 +41,19 @@ public class RedisAdapter implements PriceService {
         redisTemplate.opsForHash().put(hashKey, "price:" + price.getTimestamp().toEpochMilli(), price.getPrice().toString());
         redisTemplate.opsForHash().put(hashKey, "currency:" + price.getTimestamp().toEpochMilli(), price.getCurrency());
         long endTime = System.nanoTime();
-        long processingTime = (endTime - startTime) / 1_000_000; // Convert to milliseconds
-        logger.info("crypto.price.save.redis.time: {}ms - {} price updates", processingTime, countPriceUpdates());
+        long processingTime = (endTime - startTime) / 1_000_000;
+        logger.info("crypto.price.save.redis.time: [{}ms]", processingTime);
         // Send metric to metrics server
         Timer timer = Timer.builder("crypto.price.save.redis.time")
                 .description("Time taken to save crypto price updates to redis")
                 .register(meterRegistry);
         timer.record(processingTime, TimeUnit.MILLISECONDS);
+        Timer timer2 = Timer.builder("crypto.price.updates.total")
+                .description("Total number of crypto price updates stored")
+                .register(meterRegistry);
+        long totalUpdates = countPriceUpdates(); 
+        timer2.record(totalUpdates, TimeUnit.MILLISECONDS);
+        logger.info("crypto.price.updates.total: {}", totalUpdates);
     }
 
     @Override
