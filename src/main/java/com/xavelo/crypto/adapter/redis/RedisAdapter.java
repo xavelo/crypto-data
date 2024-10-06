@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
@@ -195,6 +196,7 @@ public class RedisAdapter implements PriceService {
 
     @Override
     public BigDecimal getAveragePriceByCoinInRange(String coin, int range, String unit) {    
+        flushAllDatabases();
         long startTime = System.nanoTime();    
         String hashKey = "coin:" + coin;
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(hashKey);
@@ -269,6 +271,14 @@ public class RedisAdapter implements PriceService {
             }
         }
         return prices;
+    }
+
+    private void flushAllDatabases() {
+        redisTemplate.execute((RedisCallback<Object>) connection -> {
+            connection.flushAll(); // Updated to use flushAll() instead of flushDb()
+            return null;
+        });
+        logger.info("All Redis databases have been flushed.");
     }
 
 }
