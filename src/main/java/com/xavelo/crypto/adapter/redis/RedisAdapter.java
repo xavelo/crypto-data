@@ -43,6 +43,7 @@ public class RedisAdapter implements PriceService {
         String hashKey = "coin:" + price.getCoin();
         redisTemplate.opsForHash().put(hashKey, "price:" + price.getTimestamp().toEpochMilli(), price.getPrice().toString());
         redisTemplate.opsForHash().put(hashKey, "currency:" + price.getTimestamp().toEpochMilli(), price.getCurrency());
+        redisTemplate.opsForValue().set("last_price:" + price.getCoin(), price.getPrice().toString() + ":" + price.getTimestamp().toEpochMilli() + ":" + price.getCurrency());
         long endTime = System.nanoTime();
         long processingTime = (endTime - startTime) / 1_000_000;
         //logger.info("crypto.price.save.redis.time: [{}ms]", processingTime);
@@ -120,7 +121,7 @@ public class RedisAdapter implements PriceService {
             String value = (String) entry.getValue();
             if (key.startsWith("price:")) {
                 long epochMilli = Long.parseLong(key.split(":")[1]);
-                ZonedDateTime timestamp = ZonedDateTime.ofInstant(Instant.ofEpochMilli(epochMilli), ZoneId.of("Europe/Madrid")); 
+                ZonedDateTime timestamp = Instant.ofEpochMilli(epochMilli).atZone(ZoneId.of("Europe/Madrid")); 
                 if (lastTimestamp == null || timestamp.isAfter(lastTimestamp)) {
                     lastPrice = new BigDecimal(value);
                     lastTimestamp = timestamp;
