@@ -48,6 +48,12 @@ public class CryptoDataController {
         return ResponseEntity.ok(priceUpdatesCount);
     }
 
+    @GetMapping("/prices/count/{coin}/{range}/{unit}")
+    public ResponseEntity<Long> getPriceUpdatesCountByCoinInRange(@PathVariable String coin, @PathVariable int range, @PathVariable String unit) {
+        long priceUpdatesCount = priceService.getPriceUpdatesCountByCoin(coin);
+        return ResponseEntity.ok(priceUpdatesCount);
+    }
+
     @GetMapping("/price/{coin}")
     public ResponseEntity<BigDecimal> getPriceByCoin(@PathVariable String coin) {
         BigDecimal price = priceService.getAveragePriceByCoin(coin);
@@ -55,7 +61,7 @@ public class CryptoDataController {
     }
 
     @GetMapping("/price/{coin}/average/{range}/{unit}")
-    public ResponseEntity<BigDecimal> pricesByCoinLastHours(@PathVariable String coin, @PathVariable int range, @PathVariable String unit) {
+    public ResponseEntity<BigDecimal> getAveragePriceByCoinInRange(@PathVariable String coin, @PathVariable int range, @PathVariable String unit) {
         BigDecimal average = priceService.getAveragePriceByCoinInRange(coin, range, unit);
         return ResponseEntity.ok(average);
     }

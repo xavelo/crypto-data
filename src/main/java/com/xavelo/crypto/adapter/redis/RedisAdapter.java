@@ -81,6 +81,28 @@ public class RedisAdapter implements PriceService {
         return count;
     }
 
+    @Override
+    public long getPriceUpdatesCountByCoinInRange(String coin, int range, String unit) {
+        String pattern = "coin:" + coin; // {{ edit_1 }}
+        Set<String> keys = redisTemplate.keys(pattern);
+        long count = 0;
+        long now = System.currentTimeMillis();
+        long startTimeInRange = getStartTime(now, range, unit); // Calculate start time based on unit
+
+        for (String key : keys) {
+            Map<Object, Object> entries = redisTemplate.opsForHash().entries(key);
+            // Count only fields that start with "price:" and are within the time range
+            count += entries.keySet().stream()
+                    .filter(k -> ((String) k).startsWith("price:"))
+                    .filter(k -> {
+                        long timestamp = Long.parseLong(((String) k).split(":")[1]);
+                        return timestamp >= startTimeInRange && timestamp <= now; // Check if within range
+                    })
+                    .count();
+        }
+        return count;
+    }
+
 
     @Override
     public BigDecimal getLastPriceByCoin(String coin) {
