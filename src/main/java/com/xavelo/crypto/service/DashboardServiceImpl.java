@@ -3,9 +3,12 @@ package com.xavelo.crypto.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.stereotype.Component;
+
 import com.xavelo.crypto.model.Price;
 import com.xavelo.crypto.model.Coin;
 
+@Component
 public class DashboardServiceImpl implements DashboardService {
 
     private PriceService priceService;
