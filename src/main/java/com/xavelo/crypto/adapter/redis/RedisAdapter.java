@@ -133,7 +133,7 @@ public class RedisAdapter implements PriceService {
         String hashKey = "coin:" + coin;
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(hashKey);
         long now = System.currentTimeMillis();
-        long targetTimestamp = getStartTime(now, range, unit); // Calculate target timestamp
+        long targetTimestamp = getStartTime(now, range, unit);
         Price historicalPrice = null;
 
         for (Map.Entry<Object, Object> entry : entries.entrySet()) {
@@ -144,9 +144,12 @@ public class RedisAdapter implements PriceService {
                 // Check if the timestamp is the closest to the target timestamp
                 if (timestamp <= now && (historicalPrice == null || Math.abs(timestamp - targetTimestamp) < Math.abs(historicalPrice.getTimestamp().toEpochMilli() - targetTimestamp))) {
                     historicalPrice = new Price(coin, new BigDecimal(value), null, Instant.ofEpochMilli(timestamp));
+                    logger.info("historicalPrice {} - timestamp {}", value, timestamp);
                 }
             }
         }
+        // check coin
+        // redisTemplate.opsForHash().put(hashKey, "currency:" + price.getTimestamp().toEpochMilli(), price.getCurrency());
         return historicalPrice; // Return the price at the specified moment in time
     }
 
