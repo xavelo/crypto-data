@@ -5,11 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.xavelo.crypto.Price;
 import com.xavelo.crypto.adapter.mongo.PriceDocument;
 import com.xavelo.crypto.adapter.mongo.PriceRepository;
-import com.xavelo.crypto.adapter.redis.RedisAdapter;
 import com.xavelo.crypto.service.PriceService;
 
 import java.util.concurrent.TimeUnit;
-import java.math.BigDecimal; // {{ edit_1 }}
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,19 +28,16 @@ public class CryptoPriceUpdatesListener {
 
     private final PriceService priceService;
     private final PriceRepository repository;
-    private final RedisAdapter redisAdapter;
     private final ObjectMapper objectMapper;
     private final MeterRegistry meterRegistry;
     
     @Autowired
     public CryptoPriceUpdatesListener(PriceService priceService, 
-                                      PriceRepository repository, 
-                                      RedisAdapter redisAdapter, 
+                                      PriceRepository repository,                                     
                                       ObjectMapper objectMapper, 
                                       MeterRegistry meterRegistry) {
         this.priceService = priceService;
         this.repository = repository;
-        this.redisAdapter = redisAdapter;
         this.objectMapper = objectMapper;
         this.meterRegistry = meterRegistry;
     }
