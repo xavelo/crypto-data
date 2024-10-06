@@ -135,15 +135,16 @@ public class RedisAdapter implements PriceService {
         long now = System.currentTimeMillis();
         long targetTimestamp = getStartTime(now, range, unit);
         Price historicalPrice = null;
+        long margin = 30 * 1000; // 30 seconds in milliseconds
 
-        // First pass to find the closest historical price
+        // Single pass to find the closest historical price within the margin
         for (Map.Entry<Object, Object> entry : entries.entrySet()) {
             String key = (String) entry.getKey();
             String value = (String) entry.getValue();
             if (key.startsWith("price:")) {
                 long timestamp = Long.parseLong(key.split(":")[1]);
-                // Check if the timestamp is within the range and closest to the target timestamp
-                if (timestamp <= now && timestamp >= targetTimestamp && 
+                // Check if the timestamp is within the range with a 30 seconds margin
+                if (timestamp <= now && timestamp >= (targetTimestamp - margin) && 
                     (historicalPrice == null || 
                     Math.abs(timestamp - targetTimestamp) < Math.abs(historicalPrice.getTimestamp().toEpochMilli() - targetTimestamp))) { 
                     historicalPrice = new Price(coin, new BigDecimal(value), null, Instant.ofEpochMilli(timestamp));
@@ -151,27 +152,6 @@ public class RedisAdapter implements PriceService {
                 }
             }
         }
-
-        // If no historical price found, check with a 30 seconds margin
-        if (historicalPrice == null) {
-            long margin = 30 * 1000; // 30 seconds in milliseconds
-            for (Map.Entry<Object, Object> entry : entries.entrySet()) {
-                String key = (String) entry.getKey();
-                String value = (String) entry.getValue();
-                if (key.startsWith("price:")) {
-                    long timestamp = Long.parseLong(key.split(":")[1]);
-                    // Check if the timestamp is within the range with a 30 seconds margin
-                    if (timestamp <= now && timestamp >= (targetTimestamp - margin) && 
-                        (historicalPrice == null || 
-                        Math.abs(timestamp - targetTimestamp) < Math.abs(historicalPrice.getTimestamp().toEpochMilli() - targetTimestamp))) { 
-                        historicalPrice = new Price(coin, new BigDecimal(value), null, Instant.ofEpochMilli(timestamp));
-                        logger.info("historicalPrice with margin {} - timestamp {}", value, timestamp);
-                    }
-                }
-            }
-        }
-        // check coin
-        // redisTemplate.opsForHash().put(hashKey, "currency:" + price.getTimestamp().toEpochMilli(), price.getCurrency());
         return historicalPrice; // Return the price at the specified moment in time
     }
 
