@@ -136,7 +136,7 @@ public class RedisAdapter implements PriceService {
         long targetTimestamp = getStartTime(now, range, unit);
         
         // Log the targetTimestamp for debugging
-        logger.info("targetTimestamp for coin {}: {}", coin, Instant.ofEpochMilli(targetTimestamp));
+        logger.info("targetTimestamp for coin {}: {} - now {}", coin, Instant.ofEpochMilli(targetTimestamp), Instant.ofEpochMilli(now));
         
         Price historicalPrice = null;
         long margin = 30 * 1000; // 30 seconds in milliseconds
@@ -247,6 +247,7 @@ public class RedisAdapter implements PriceService {
             default:
                 throw new RuntimeException("Invalid unit: " + unit);
         }
+        logger.info("getStartTime(now {}, range {}{}) = {}", now, range, unit, startTime);
         return startTime;
     }   
 
