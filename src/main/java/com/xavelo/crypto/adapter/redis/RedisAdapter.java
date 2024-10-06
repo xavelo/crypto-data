@@ -129,18 +129,19 @@ public class RedisAdapter implements PriceService {
                 lastCurrency = (String) value;
             }
         }
-        return new Price(coin, lastPrice, lastCurrency, lastTimestamp != null ? lastTimestamp.toInstant() : null); // Convert back to Instant if needed
+        return new Price(coin, lastPrice, lastCurrency, lastTimestamp.withZoneSameInstant(ZoneId.of("Europe/Madrid")).toInstant()); // Convert back to Instant in Madrid timezone
     }
 
     @Override
     public Price getHistoricalPriceByCoin(String coin, int range, String unit) {
         String hashKey = "coin:" + coin;
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(hashKey);
-        long now = System.currentTimeMillis();
-        long targetTimestamp = getStartTime(now, range, unit);
+        // Get the current time in Madrid timezone
+        
+        long targetTimestamp = getStartTime(getNow(), range, unit);
         
         // Log the targetTimestamp for debugging
-        logger.info("targetTimestamp for coin {}: {} - now {}", coin, Instant.ofEpochMilli(targetTimestamp), Instant.ofEpochMilli(now));
+        logger.info("targetTimestamp for coin {}: {} - now {}", coin, Instant.ofEpochMilli(targetTimestamp), getNow());
         
         Price historicalPrice = null;
         long margin = 30 * 1000; // 30 seconds in milliseconds
@@ -152,15 +153,23 @@ public class RedisAdapter implements PriceService {
             if (key.startsWith("price:")) {
                 long timestamp = Long.parseLong(key.split(":")[1]);
                 // Check if the timestamp is within the range with a 30 seconds margin
-                if (timestamp <= now && timestamp >= (targetTimestamp - margin) && 
+                if (timestamp <= getNow() && timestamp >= (targetTimestamp - margin) && 
                     (historicalPrice == null || 
                     Math.abs(timestamp - targetTimestamp) < Math.abs(historicalPrice.getTimestamp().toEpochMilli() - targetTimestamp))) { 
-                    historicalPrice = new Price(coin, new BigDecimal(value), null, Instant.ofEpochMilli(timestamp));
+                    ZonedDateTime madridTimestamp = ZonedDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneId.of("Europe/Madrid")); // Convert to Madrid timezone
+                    logger.info("historicalPrice {} - timestamp {}", value, madridTimestamp); // Log with Madrid timezone
+                    historicalPrice = new Price(coin, new BigDecimal(value), null, 
+                        ZonedDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneId.of("Europe/Madrid")).toInstant());
                     logger.info("historicalPrice {} - timestamp {}", value, timestamp);
                 }
             }
         }
         return historicalPrice; // Return the price at the specified moment in time
+    }
+
+    private long getNow() {
+        ZonedDateTime nowMadrid = ZonedDateTime.now(ZoneId.of("Europe/Madrid"));
+        return nowMadrid.toInstant().toEpochMilli();
     }
 
     @Override
