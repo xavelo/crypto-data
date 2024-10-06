@@ -45,7 +45,7 @@ public class RedisAdapter implements PriceService {
         redisTemplate.opsForValue().set("last_price:" + price.getCoin(), price.getPrice().toString() + ":" + price.getTimestamp().toEpochMilli() + ":" + price.getCurrency());
         long endTime = System.nanoTime();
         long processingTime = (endTime - startTime) / 1_000_000;
-        logger.info("crypto.price.save.redis.time: [{}ms]", processingTime);
+        logger.info("crypto.price.save.redis.time: {}ms", processingTime);
         // Send metric to metrics server
         Timer timer = Timer.builder("crypto.price.save.redis.time")
                 .description("Time taken to save crypto price updates to redis")
@@ -231,12 +231,19 @@ public class RedisAdapter implements PriceService {
         for (Map.Entry<Object, Object> entry : entries.entrySet()) {
             String key = (String) entry.getKey();
             String value = (String) entry.getValue();
+            if (key.startsWith("currency:")) {
+                Instant timestamp = Instant.ofEpochMilli(Long.parseLong(key.split(":")[1]));
+                currencyMap.put(timestamp.toEpochMilli(), (String) value); // {{ edit_2 }}
+            }
+        }
+
+        for (Map.Entry<Object, Object> entry : entries.entrySet()) { // New loop to add prices
+            String key = (String) entry.getKey();
+            String value = (String) entry.getValue();
             if (key.startsWith("price:")) {
                 Instant timestamp = Instant.ofEpochMilli(Long.parseLong(key.split(":")[1]));
-                prices.add(new Price(coin, new BigDecimal(value), currencyMap.getOrDefault(timestamp.toEpochMilli(), null), timestamp)); // {{ edit_2 }}
-            } else if (key.startsWith("currency:")) {
-                Instant timestamp = Instant.ofEpochMilli(Long.parseLong(key.split(":")[1]));
-                currencyMap.put(timestamp.toEpochMilli(), (String) value); // {{ edit_3 }}
+                String currency = currencyMap.get(timestamp.toEpochMilli()); // Get currency from map
+                prices.add(new Price(coin, new BigDecimal(value), currency, timestamp)); // {{ edit_3 }}
             }
         }
         
