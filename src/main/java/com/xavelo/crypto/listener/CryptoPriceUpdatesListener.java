@@ -44,7 +44,8 @@ public class CryptoPriceUpdatesListener {
 
     @KafkaListener(topics = "crypto-price-updates-topic", groupId = "crypto-price-updates-group", containerFactory = "kafkaListenerContainerFactory")
     public void consume(@Payload String message, @Header(KafkaHeaders.RECEIVED_KEY) String key) throws JsonProcessingException, InterruptedException {
-        logger.info("\nReceived message: key {} - value {}", key, message);
+        logger.info(" ");
+        logger.info("Received message: key {} - value {}", key, message);
 
         // Start timer
         long startTime = System.nanoTime();
