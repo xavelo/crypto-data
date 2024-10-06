@@ -14,5 +14,7 @@ public class Trend {
     private boolean positive;
     private double percentage;
     private BigDecimal value;
+    private Price currenPrice;
+    private Price historialPrice;
 
 }
