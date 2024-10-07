@@ -82,6 +82,9 @@ public class InfluxDBAdapter {
             }
         
             FluxRecord record = table.getRecords().get(0);
+            logger.info("record: {}", record.toString());
+            Object o = record.getValueByIndex(0);
+            logger.info("object {}", o);
             return (Double)record.getValueByKey("mean");
             
         } catch (com.influxdb.exceptions.BadRequestException e) {
