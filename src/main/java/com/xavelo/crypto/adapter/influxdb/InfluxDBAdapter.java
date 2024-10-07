@@ -64,16 +64,20 @@ public class InfluxDBAdapter {
                     + "|> range(start: -1h) "
                     + "|> filter(fn: (r) => r._measurement == \"crypto_price_updates\" and r.coin == \"" + coin + "\") "
                     + "|> mean(column: \"price\")";
+
+        logger.info("influxdb query: {}", query);
     
         try {
             List<FluxTable> results = queryApi.query(query);
             if (results.isEmpty()) {
-                return 0.0; // or throw an exception, depending on your requirements
+                logger.error("empty results");
+                return 0.0;
             }
         
             FluxTable table = results.get(0);
             if (table.getRecords().isEmpty()) {
-                return 0.0; // or throw an exception, depending on your requirements
+                logger.error("empty records");
+                return 0.0;
             }
         
             FluxRecord record = table.getRecords().get(0);
