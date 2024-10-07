@@ -60,7 +60,7 @@ public class InfluxDBAdapter {
     public Double getAveragePrice(String coin, int range, String unit) {
         QueryApi queryApi = influxDBClient.getQueryApi();
     
-        String query = "from(bucket: \"your_bucket_name\") "
+        String query = "from(bucket: \"crypto\") "
                     + "|> range(start: -1h) "
                     + "|> filter(fn: (r) => r._measurement == \"crypto_price_updates\" and r.coin == \"" + coin + "\") "
                     + "|> mean(column: \"price\")";
