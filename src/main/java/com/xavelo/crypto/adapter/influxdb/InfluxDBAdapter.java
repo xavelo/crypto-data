@@ -35,7 +35,7 @@ public class InfluxDBAdapter {
             Point point = Point.measurement("crypto_price_updates")
                 .addTag("coin", price.getCoin())
                 .addTag("currency", price.getCurrency())
-                .addField("price", price.getPrice().doubleValue())
+                .addField("price", price.getPrice().toString())
                 .time(price.getTimestamp(), WritePrecision.NS);
             
             writeApi.writePoint(point);
