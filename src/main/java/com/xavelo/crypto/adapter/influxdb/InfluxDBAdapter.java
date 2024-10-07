@@ -83,9 +83,9 @@ public class InfluxDBAdapter {
         
             FluxRecord record = table.getRecords().get(0);
             logger.info("record: {}", record.toString());
-            // Log all key-value pairs in the FluxRecord
-            for (String key : record.getFieldKeys()) {
-                logger.info("Field: {}, Value: {}", key, record.getValueByKey(key));
+            // Log all values in the FluxRecord
+            for (int i = 0; i < record.getValues().size(); i++) {
+                logger.info("Value at index {}: {}", i, record.getValueByIndex(i));
             }
             return (Double)record.getValueByKey("mean");
             
