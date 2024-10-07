@@ -60,24 +60,31 @@ public class InfluxDBAdapter {
     public Double getAveragePrice(String coin, int range, String unit) {
         QueryApi queryApi = influxDBClient.getQueryApi();
     
-        String query = "from(bucket: \"crypto\") "
-                + "|> range(start: -1h) "
-                + "|> filter(fn: (r) => r._measurement == \"crypto_price_updates\" and r.coin == \"" + coin + "\") "
-                + "|> mean(\"price\")";
+        String query = "from(bucket: \"your_bucket_name\") "
+                    + "|> range(start: -1h) "
+                    + "|> filter(fn: (r) => r._measurement == \"crypto_price_updates\" and r.coin == \"" + coin + "\") "
+                    + "|> mean(column: \"price\")";
     
-        List<FluxTable> results = queryApi.query(query);
-    
-        if (results.isEmpty()) {
-            return 0.0; // or throw an exception, depending on your requirements
+        try {
+            List<FluxTable> results = queryApi.query(query);
+            if (results.isEmpty()) {
+                return 0.0; // or throw an exception, depending on your requirements
+            }
+        
+            FluxTable table = results.get(0);
+            if (table.getRecords().isEmpty()) {
+                return 0.0; // or throw an exception, depending on your requirements
+            }
+        
+            FluxRecord record = table.getRecords().get(0);
+            return (Double)record.getValueByKey("mean");
+            // ...
+        } catch (com.influxdb.exceptions.BadRequestException e) {
+            logger.error("Error executing query: {}", e.getMessage());
+            return 0.0;
         }
     
-        FluxTable table = results.get(0);
-        if (table.getRecords().isEmpty()) {
-            return 0.0; // or throw an exception, depending on your requirements
-        }
-    
-        FluxRecord record = table.getRecords().get(0);
-        return (Double)record.getValueByKey("mean");
+
     }
 
 }
