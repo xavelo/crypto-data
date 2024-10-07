@@ -27,6 +27,7 @@ public class InfluxDBAdapter {
     public InfluxDBAdapter(InfluxDBClient influxDBClient, MeterRegistry meterRegistry) {
         this.influxDBClient = influxDBClient;
         this.meterRegistry = meterRegistry;
+        resetPriceData();
     }
 
     public void writePriceUpdate(Price price) {
@@ -48,6 +49,10 @@ public class InfluxDBAdapter {
                 .description("Time taken to save crypto price update to InfluxDB")
                 .register(meterRegistry);
         timer.record(processingTime, TimeUnit.MILLISECONDS);
+    }
+
+    private void resetPriceData() {
+        influxDBClient.getQueryApi().query("DELETE FROM \"crypto_price_updates\"");
     }
 
 }
