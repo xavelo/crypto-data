@@ -83,7 +83,7 @@ public class InfluxDBAdapter {
         
             FluxRecord record = table.getRecords().get(0);
             return (Double)record.getValueByKey("mean");
-            // ...
+            
         } catch (com.influxdb.exceptions.BadRequestException e) {
             logger.error("Error executing query: {}", e.getMessage());
             return 0.0;
