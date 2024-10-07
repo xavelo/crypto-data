@@ -29,8 +29,7 @@ public class InfluxDBAdapter {
         this.meterRegistry = meterRegistry;        
     }
 
-    public void writePriceUpdate(Price price) {
-        resetPriceData();
+    public void writePriceUpdate(Price price) {        
         long startTime = System.nanoTime();
         try (WriteApi writeApi = influxDBClient.getWriteApi()) {
             Point point = Point.measurement("crypto_price_updates")
@@ -51,10 +50,6 @@ public class InfluxDBAdapter {
                 .register(meterRegistry);
         timer.record(processingTime, TimeUnit.MILLISECONDS);
         */
-    }
-
-    private void resetPriceData() {
-        influxDBClient.getQueryApi().query("DROP MEASUREMENT \"crypto_price_updates\"");
     }
 
 }
