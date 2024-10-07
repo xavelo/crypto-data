@@ -32,11 +32,11 @@ management:
   endpoint:
     prometheus:
       enabled: true
-  export:
-    influx:
-      enabled: true
-      bucket: ${spring.influx.bucket}
-      org: ${spring.influx.org}
-      token: ${spring.influx.token}
-      uri: ${spring.influx.url}
+  #export:
+  #  influx:
+  #    enabled: true
+  #    bucket: ${spring.influx.bucket}
+  #    org: ${spring.influx.org}
+  #    token: ${spring.influx.token}
+  #    uri: ${spring.influx.url}
   

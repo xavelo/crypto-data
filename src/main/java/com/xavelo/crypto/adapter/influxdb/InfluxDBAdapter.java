@@ -63,7 +63,7 @@ public class InfluxDBAdapter {
         String query = "from(bucket: \"crypto\") "
                     + "|> range(start: -1h) "
                     + "|> filter(fn: (r) => r._measurement == \"crypto_price_updates\")"
-                    + "|> filter(fn: (r) => r[\"coin\"] == \"ADA\")"
+                    + "|> filter(fn: (r) => r[\"coin\"] == \"" + coin + "\")"
                     + "|> mean(column: \"_value\")";
 
         logger.info("influxdb query: {}", query);
@@ -83,8 +83,10 @@ public class InfluxDBAdapter {
         
             FluxRecord record = table.getRecords().get(0);
             logger.info("record: {}", record.toString());
-            Object o = record.getValueByIndex(0);
-            logger.info("object {}", o);
+            // Log all key-value pairs in the FluxRecord
+            for (String key : record.getFieldKeys()) {
+                logger.info("Field: {}, Value: {}", key, record.getValueByKey(key));
+            }
             return (Double)record.getValueByKey("mean");
             
         } catch (com.influxdb.exceptions.BadRequestException e) {
