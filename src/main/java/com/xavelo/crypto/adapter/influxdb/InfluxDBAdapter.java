@@ -84,10 +84,11 @@ public class InfluxDBAdapter {
             FluxRecord record = table.getRecords().get(0);
             logger.info("record: {}", record.toString());
             // Log all values in the FluxRecord
+            /*
             for (int i = 0; i < record.getValues().size(); i++) {
                 logger.info("Value at index {}: {}", i, record.getValueByIndex(i));
-            }
-            return (Double)record.getValueByKey("mean");
+            }*/
+            return (Double)record.getValueByIndex(4);
             
         } catch (com.influxdb.exceptions.BadRequestException e) {
             logger.error("Error executing query: {}", e.getMessage());
