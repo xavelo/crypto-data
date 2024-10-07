@@ -58,16 +58,22 @@ public class InfluxDBAdapter {
     }
 
     public Double getAveragePrice(String coin, int range, String unit) {
-        // Convert range and unit to a time filter for the query
-        String timeFilter = String.format("now() - %d%s", range, unit);
-        
-        // Query the database for the average value of the specified coin
-        String query = String.format("SELECT MEAN(_value) FROM %s WHERE time > %s", coin, timeFilter);
+         // Ensure the unit is valid
+         if (!unit.equals("m") && !unit.equals("h") && !unit.equals("d")) {
+            throw new IllegalArgumentException("Invalid time unit. Use 'm', 'h', or 'd'.");
+        }
 
-        List<FluxTable> tables = influxDBClient.getQueryApi().query(query);
-        // Assuming the first table contains the result
+        // Construct the time filter for the query
+        String timeFilter = String.format("time > now() - %d%s", range, unit);
+        
+        // Query the database for the average price of the specified coin
+        String query = String.format("SELECT MEAN(\"price\") FROM \"crypto_price_updates\" WHERE \"coin\" = '%s' AND %s", coin, timeFilter);
+        
+        // Execute the query and retrieve the result
+        List<FluxTable> tables = influxDBClient.getQueryApi().query(query); // Updated to use influxDBClient
+        
         if (!tables.isEmpty() && !tables.get(0).getRecords().isEmpty()) {
-            return (Double) tables.get(0).getRecords().get(0).getValueByKey("_value"); // Cast to Double
+            return (Double) tables.get(0).getRecords().get(0).getValueByKey("mean"); // Cast to Double
         }
         return null; // or throw an exception if no value is found
     }    
