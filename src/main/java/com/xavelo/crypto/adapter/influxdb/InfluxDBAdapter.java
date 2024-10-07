@@ -5,15 +5,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.influxdb.client.InfluxDBClient;
+import com.influxdb.client.QueryApi;
 import com.influxdb.client.WriteApi;
 import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
+import com.influxdb.query.FluxRecord;
 import com.influxdb.query.FluxTable; // Import for Flux queries
 
 import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.Timer;
 
-import java.util.concurrent.TimeUnit; 
 import java.util.List;
 
 import com.xavelo.crypto.model.Price; // Ensure the correct import for Price
@@ -58,24 +58,26 @@ public class InfluxDBAdapter {
     }
 
     public Double getAveragePrice(String coin, int range, String unit) {
-         // Ensure the unit is valid
-         if (!unit.equals("m") && !unit.equals("h") && !unit.equals("d")) {
-            throw new IllegalArgumentException("Invalid time unit. Use 'm', 'h', or 'd'.");
+        QueryApi queryApi = influxDBClient.getQueryApi();
+    
+        String query = "from(bucket: \"crypto\") "
+                + "|> range(start: -1h) "
+                + "|> filter(fn: (r) => r._measurement == \"crypto_price_updates\" and r.coin == \"" + coin + "\") "
+                + "|> mean(\"price\")";
+    
+        List<FluxTable> results = queryApi.query(query);
+    
+        if (results.isEmpty()) {
+            return 0.0; // or throw an exception, depending on your requirements
         }
-
-        // Construct the time filter for the query
-        String timeFilter = String.format("time > now() - %d%s", range, unit);
-        
-        // Query the database for the average price of the specified coin
-        String query = String.format("SELECT MEAN(\"price\") FROM \"crypto_price_updates\" WHERE \"coin\" = '%s' AND %s", coin, timeFilter);
-        
-        // Execute the query and retrieve the result
-        List<FluxTable> tables = influxDBClient.getQueryApi().query(query); // Updated to use influxDBClient
-        
-        if (!tables.isEmpty() && !tables.get(0).getRecords().isEmpty()) {
-            return (Double) tables.get(0).getRecords().get(0).getValueByKey("mean"); // Cast to Double
+    
+        FluxTable table = results.get(0);
+        if (table.getRecords().isEmpty()) {
+            return 0.0; // or throw an exception, depending on your requirements
         }
-        return null; // or throw an exception if no value is found
-    }    
+    
+        FluxRecord record = table.getRecords().get(0);
+        return (Double)record.getValueByKey("mean");
+    }
 
 }
