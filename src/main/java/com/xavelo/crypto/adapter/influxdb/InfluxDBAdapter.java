@@ -45,10 +45,12 @@ public class InfluxDBAdapter {
         long processingTime = (endTime - startTime) / 1_000_000;
         logger.info("crypto.price.save.influxdb.time: {}ms", processingTime);
 
+        /*
         Timer timer = Timer.builder("crypto.price.save.influxdb.timee")
                 .description("Time taken to save crypto price update to InfluxDB")
                 .register(meterRegistry);
         timer.record(processingTime, TimeUnit.MILLISECONDS);
+        */
     }
 
     private void resetPriceData() {
