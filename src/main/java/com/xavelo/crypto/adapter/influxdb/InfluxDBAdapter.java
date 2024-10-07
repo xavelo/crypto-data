@@ -70,19 +70,8 @@ public class InfluxDBAdapter {
     
         try {
             List<FluxTable> results = queryApi.query(query);
-            if (results.isEmpty()) {
-                logger.error("empty results");
-                return 0.0;
-            }
-        
-            FluxTable table = results.get(0);
-            if (table.getRecords().isEmpty()) {
-                logger.error("empty records");
-                return 0.0;
-            }
-        
-            FluxRecord record = table.getRecords().get(0);
-            logger.info("record: {}", record.toString());
+            FluxTable table = results.get(0);            
+            FluxRecord record = table.getRecords().get(0);            
             // Log all values in the FluxRecord
             /*
             for (int i = 0; i < record.getValues().size(); i++) {
