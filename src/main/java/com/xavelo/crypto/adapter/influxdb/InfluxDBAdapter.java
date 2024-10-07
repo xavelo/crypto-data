@@ -54,7 +54,7 @@ public class InfluxDBAdapter {
     }
 
     private void resetPriceData() {
-        influxDBClient.getQueryApi().query("DELETE FROM \"crypto_price_updates\"");
+        influxDBClient.getQueryApi().query("DROP MEASUREMENT \"crypto_price_updates\"");
     }
 
 }
