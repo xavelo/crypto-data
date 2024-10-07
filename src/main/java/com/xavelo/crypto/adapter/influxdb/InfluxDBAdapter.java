@@ -62,8 +62,9 @@ public class InfluxDBAdapter {
     
         String query = "from(bucket: \"crypto\") "
                     + "|> range(start: -1h) "
-                    + "|> filter(fn: (r) => r._measurement == \"crypto_price_updates\" and r.coin == \"" + coin + "\") "
-                    + "|> mean(column: \"price\")";
+                    + "|> filter(fn: (r) => r._measurement == \"crypto_price_updates\")"
+                    + "|> filter(fn: (r) => r[\"coin\"] == \"ADA\")"
+                    + "|> mean(column: \"_value\")";
 
         logger.info("influxdb query: {}", query);
     
