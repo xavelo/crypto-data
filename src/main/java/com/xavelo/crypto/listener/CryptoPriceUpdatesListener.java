@@ -12,8 +12,9 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -21,8 +22,7 @@ import org.springframework.stereotype.Service;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
-import java.time.ZoneId;
-import java.time.Instant;
+import io.micrometer.core.instrument.Counter;
 
 @Service
 public class CryptoPriceUpdatesListener {
@@ -34,37 +34,79 @@ public class CryptoPriceUpdatesListener {
     private final InfluxDBAdapter influxDBAdapter;
     private final ObjectMapper objectMapper;
     private final MeterRegistry meterRegistry;
+    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final Counter retryCounter; // Add a counter for retries
+
+    private static final int MAX_RETRIES = 3; 
     
     public CryptoPriceUpdatesListener(PriceService priceService, 
                                       PriceRepository mongoPricerepository,
                                       InfluxDBAdapter influxDBAdapter,                                   
                                       ObjectMapper objectMapper, 
-                                      MeterRegistry meterRegistry) {
+                                      MeterRegistry meterRegistry,
+                                      KafkaTemplate<String, String> kafkaTemplate) {
         this.priceService = priceService;
         this.mongoPricerepository = mongoPricerepository;
         this.influxDBAdapter = influxDBAdapter;
         this.objectMapper = objectMapper;
         this.meterRegistry = meterRegistry;
+        this.kafkaTemplate = kafkaTemplate;
+        this.retryCounter = Counter.builder("crypto.price.processing.retries") // Initialize the counter
+                .description("Count of retries for processing crypto price updates")
+                .register(meterRegistry);
     }
 
     @KafkaListener(topics = "crypto-price-updates-topic", groupId = "crypto-price-updates-group", containerFactory = "kafkaListenerContainerFactory")
     public void consume(@Payload String message, @Header(KafkaHeaders.RECEIVED_KEY) String key) throws JsonProcessingException, InterruptedException {
         logger.info("Received message: key {} - value {}", key, message);
+        process(message);                
+    }
 
-        long startTime = System.nanoTime();
+    private void process(String message) {
 
-        Price price = objectMapper.readValue(message, Price.class);
-        saveToMongo(price);
-        priceService.savePriceUpdate(price);
-        influxDBAdapter.writePriceUpdate(price);
+        int attempt = 0;
 
-        long processingTime = (System.nanoTime() - startTime) / 1_000_000; // Convert to milliseconds
-        logger.info("crypto.price.processing.time: {}ms", processingTime);
+        while (attempt < MAX_RETRIES) {
+            try {
+                long startTime = System.nanoTime();
 
-        Timer timer = Timer.builder("crypto.price.processing.time")
-                .description("Time taken to process crypto price updates")
-                .register(meterRegistry);
-        timer.record(processingTime, TimeUnit.MILLISECONDS);
+                Price price = objectMapper.readValue(message, Price.class);
+                saveToMongo(price);
+                priceService.savePriceUpdate(price);
+                influxDBAdapter.writePriceUpdate(price);
+
+                long processingTime = (System.nanoTime() - startTime) / 1_000_000; // Convert to milliseconds
+                logger.info("crypto.price.processing.time: {}ms", processingTime);
+
+                Timer timer = Timer.builder("crypto.price.processing.time")
+                        .description("Time taken to process crypto price updates")
+                        .register(meterRegistry);
+                timer.record(processingTime, TimeUnit.MILLISECONDS);
+                
+                return;
+
+            } catch (JsonProcessingException e) {
+                attempt++;
+                retryCounter.increment(); // Increment the retry counter
+                logger.error("Attempt {}: error {} processing message {}", attempt, e.getMessage(), message);
+                if (attempt >= MAX_RETRIES) {
+                    sendToDLQ(message); // Send to DLQ after max retries
+                } else {
+                    // Exponential backoff delay
+                    try {
+                        Thread.sleep((long) Math.pow(2, attempt) * 1000); // Delay in milliseconds
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt(); // Restore interrupted status
+                    }
+                }
+            }
+        }
+
+    }
+
+    // New method to send message to DLQ
+    private void sendToDLQ(String message) {       
+        kafkaTemplate.send("crypto-price-updates-topic", message);
     }
 
     private void saveToMongo(Price price) {
@@ -88,4 +130,3 @@ public class CryptoPriceUpdatesListener {
     }
 
 }
-
