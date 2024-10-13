@@ -33,6 +33,11 @@ public class CryptoDataController {
         return ResponseEntity.ok("hello from pod " + podName);
     }
 
+    @GetMapping("/test-error")
+    public ResponseEntity<String> testError() throws Exception {
+        throw new Exception("testing exceptino handler");
+    }
+
     @GetMapping("/prices/count")
     public ResponseEntity<Long> count() {
         long priceUpdatesCount = priceService.getPriceUpdatesCount();
