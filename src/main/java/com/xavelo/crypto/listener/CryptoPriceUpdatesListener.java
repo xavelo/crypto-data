@@ -65,10 +65,11 @@ public class CryptoPriceUpdatesListener {
     private void process(String message) {
 
         // test
+        /*
         if(message.contains("XRP")) {
             logger.info("testing error for XRP price...");
             message = "test error";
-        }
+        }*/
 
         int attempt = 0;
 
@@ -112,7 +113,7 @@ public class CryptoPriceUpdatesListener {
 
     // New method to send message to DLQ
     private void sendToDLQ(String message) {       
-        kafkaTemplate.send("crypto-price-updates-topic", message);
+        kafkaTemplate.send("crypto-price-updates-topic-dlq", message);
     }
 
     private void saveToMongo(Price price) {
