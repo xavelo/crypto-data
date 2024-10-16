@@ -21,10 +21,10 @@ spring:
     bucket: crypto
     org: xavelo.com
     token: rRfGF0-quQ8bkjlXxaS_qzCK0VVG_-jj3h47AnndP05D_-3ElKhdI86gnyzGiikBZPn6fDt-g4oF2577BJ4RKA== 
-  metrics:
-    export:
-      prometheus:
-        enabled: true
+  #metrics:
+  #  export:
+  #    prometheus:
+  #      enabled: true
   web:
     exposure:
       include: "*"
