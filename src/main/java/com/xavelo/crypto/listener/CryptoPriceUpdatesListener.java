@@ -70,7 +70,7 @@ public class CryptoPriceUpdatesListener {
         // test
         if(message.contains("XRP")) {
             logger.info("testing error for XRP price...");
-            message = "test error";
+            message = "test error for XRP";
         }
 
         int attempt = 0;
