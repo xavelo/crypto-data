@@ -42,6 +42,7 @@ public class DlqController {
         Properties props = new Properties();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "my-cluster-kafka-bootstrap.default.svc:9092");
         props.put(ConsumerConfig.GROUP_ID_CONFIG, "dlq-reprocessor-group");
+        props.put(ConsumerConfig.CLIENT_ID_CONFIG, "dlq-reprocessor-client");
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
