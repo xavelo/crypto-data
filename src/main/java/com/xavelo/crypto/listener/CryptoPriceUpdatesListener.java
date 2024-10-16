@@ -3,7 +3,6 @@ package com.xavelo.crypto.listener;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.xavelo.crypto.adapter.influxdb.InfluxDBAdapter;
-import com.xavelo.crypto.adapter.mongo.PriceRepository;
 import com.xavelo.crypto.service.PriceService;
 import com.xavelo.crypto.model.Price;
 
@@ -68,7 +67,7 @@ public class CryptoPriceUpdatesListener {
 
                 Price price = objectMapper.readValue(record.value(), Price.class);
                 // simulate errors to test retry mechanism and observability
-                simulateUnreliableApiCall(50);
+                simulateUnreliableApiCall(20);
                 priceService.savePriceUpdate(price);
                 influxDBAdapter.writePriceUpdate(price);
 
