@@ -67,12 +67,6 @@ public class CryptoPriceUpdatesListener {
 
     private void process(String message) {
 
-        // test
-        if(message.contains("XRP")) {
-            logger.info("testing error for XRP price...");
-            message = "test error for XRP";
-        }
-
         int attempt = 0;
 
         while (attempt < MAX_RETRIES) {
@@ -80,7 +74,8 @@ public class CryptoPriceUpdatesListener {
                 long startTime = System.nanoTime();
 
                 Price price = objectMapper.readValue(message, Price.class);
-                saveToMongo(price);
+                // simulate errors to test retry mechanism and observability
+                simulateUnreliableApiCall(20);
                 priceService.savePriceUpdate(price);
                 influxDBAdapter.writePriceUpdate(price);
 
@@ -113,29 +108,23 @@ public class CryptoPriceUpdatesListener {
 
     }
 
-    // New method to send message to DLQ
-    private void sendToDLQ(String message) {
-        kafkaTemplate.send("crypto-price-updates-topic-dlq", message);
+    private void sendToDLQ(ConsumerRecord<String, String> originalRecord) {
+        ConsumerRecord<String, String> dlqRecord = new ConsumerRecord<>(
+            "crypto-price-updates-topic-dlq",
+            originalRecord.partition(),
+            originalRecord.offset(),
+            originalRecord.key(),
+            originalRecord.value()
+        );
+        kafkaTemplate.send(dlqRecord.topic(), dlqRecord.key(), dlqRecord.value());
     }
 
-    private void saveToMongo(Price price) {
-        long startTime = System.nanoTime();
-        PriceDocument.PriceId priceId = new PriceDocument.PriceId(price.getCoin(), price.getTimestamp());
-        PriceDocument document = new PriceDocument(
-            priceId,
-            price.getPrice(),
-            price.getCurrency()
-        );
-        mongoPricerepository.save(document);
-        long endTime = System.nanoTime();
-        long processingTime = (endTime - startTime) / 1_000_000; // Convert to milliseconds
-        logger.info("crypto.price.save.mongo.time: {}ms", processingTime);
-        
-        // Send metric to metrics server
-        Timer timer = Timer.builder("crypto.price.save.mongo.time")
-                .description("Time taken to save crypto price updates to mongo")
-                .register(meterRegistry);
-        timer.record(processingTime, TimeUnit.MILLISECONDS);
+    private void simulateUnreliableApiCall(int errorPercentage) ´
+        // Generate a random number between 0 and 100
+        int randomValue = (int) (Math.random() * 100);
+        if (randomValue < errorPercentage) {
+            throw new RuntimeException("Simulated API call failure");
+        }
     }
 
 }
