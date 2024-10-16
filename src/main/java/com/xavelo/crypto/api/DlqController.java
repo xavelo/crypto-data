@@ -35,6 +35,7 @@ public class DlqController {
     
     @PostMapping("/process")
     public ResponseEntity<List<String>> processRecords(@RequestParam int numberOfRecords) {
+        logger.info("-> reprocess {} DLQ records", numberOfRecords);
         List<String> records = consumeRecordsFromTopic(DLQ_TOPIC, numberOfRecords);
         return ResponseEntity.ok(records); // Return a response
     }
@@ -54,6 +55,7 @@ public class DlqController {
             consumer.subscribe(Collections.singletonList(DLQ_TOPIC));
 
             ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(1000));
+            logger.info("{} records consumed from crypto-price-updates-topic-dlq", records.count());            
             int recordsToProcess = Math.min(records.count(), numberOfRecords);
             int recordsProcessed = 0;
             for (var record : records) {
