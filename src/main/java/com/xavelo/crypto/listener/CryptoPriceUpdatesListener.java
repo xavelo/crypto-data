@@ -65,7 +65,7 @@ public class CryptoPriceUpdatesListener {
         acknowledgment.acknowledge();
     }
 
-    private void process(String message) {
+    private void process(ConsumerRecord<String, String> record) {
 
         int attempt = 0;
 
@@ -94,7 +94,7 @@ public class CryptoPriceUpdatesListener {
                 retryCounter.increment(); // Increment the retry counter
                 logger.error("Attempt {}: error {} processing message {}", attempt, e.getMessage(), message);
                 if (attempt >= MAX_RETRIES) {
-                    sendToDLQ(message); // Send to DLQ after max retries
+                    sendToDLQ(record); // Send to DLQ after max retries
                 } else {
                     // Exponential backoff delay
                     try {
