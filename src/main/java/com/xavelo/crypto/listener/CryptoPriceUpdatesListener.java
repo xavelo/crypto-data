@@ -60,8 +60,8 @@ public class CryptoPriceUpdatesListener {
 
     @KafkaListener(topics = "crypto-price-updates-topic", groupId = "crypto-price-updates-group", containerFactory = "kafkaListenerContainerFactory")
     public void consume(ConsumerRecord<String, String> record, Acknowledgment acknowledgment) throws JsonProcessingException, InterruptedException {
-        logger.info("Received message: key {} - value {}", record.key(), record.value());
-        process(record.value());
+        logger.info("Received message: key {} - value {}", record.key(), record.value());        
+        process(record.value());        
         acknowledgment.acknowledge();
     }
 
@@ -94,7 +94,7 @@ public class CryptoPriceUpdatesListener {
                 
                 return;
 
-            } catch (JsonProcessingException e) {
+            } catch (Exception e) {
                 attempt++;
                 retryCounter.increment(); // Increment the retry counter
                 logger.error("Attempt {}: error {} processing message {}", attempt, e.getMessage(), message);
@@ -114,7 +114,7 @@ public class CryptoPriceUpdatesListener {
     }
 
     // New method to send message to DLQ
-    private void sendToDLQ(String message) {       
+    private void sendToDLQ(String message) {
         kafkaTemplate.send("crypto-price-updates-topic-dlq", message);
     }
 
