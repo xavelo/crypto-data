@@ -1,6 +1,6 @@
 package com.xavelo.crypto.api;
 
-import com.xavelo.crypto.service.PriceService; // Moved to the correct position
+import com.xavelo.crypto.service.PriceService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.math.BigDecimal; // Moved to the correct position
-import com.xavelo.crypto.model.Price; // Ensure this import is present
-import java.util.List; // {{ edit_1 }}
+import java.math.BigDecimal;
+import com.xavelo.crypto.model.Price;
+import java.util.List;
 
 @RestController
 public class CryptoDataController {
