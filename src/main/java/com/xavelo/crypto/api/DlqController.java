@@ -3,6 +3,8 @@ package com.xavelo.crypto.api;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.Properties;
+import java.util.List;
+import java.util.ArrayList;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -32,13 +34,14 @@ public class DlqController {
     }
     
     @PostMapping("/process")
-    public ResponseEntity<String> processRecords(@RequestParam int numberOfRecords) {
-        consumeRecordsFromTopic(DLQ_TOPIC, numberOfRecords);
-        return ResponseEntity.ok("Processing completed"); // Return a response
+    public ResponseEntity<List<String>> processRecords(@RequestParam int numberOfRecords) {
+        List<String> records = consumeRecordsFromTopic(DLQ_TOPIC, numberOfRecords);
+        return ResponseEntity.ok(records); // Return a response
     }
     
     // New method to consume records from the specified topic
-    private void consumeRecordsFromTopic(String topic, int numberOfRecords) {
+    private List<String> consumeRecordsFromTopic(String topic, int numberOfRecords) {
+        List<String> consumedRecords = new ArrayList<String>();
         Properties props = new Properties();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "my-cluster-kafka-bootstrap.default.svc:9092");
         props.put(ConsumerConfig.GROUP_ID_CONFIG, "dlq-reprocessor-group");
@@ -57,9 +60,12 @@ public class DlqController {
                 if (recordsProcessed <= recordsToProcess) {
                     logger.info("Reprocessing record: key={} value={}", record.key(), record.value());                
                     //kafkaTemplate.send("crypto-price-updates-topic", record.key(), record.value());
+                    consumedRecords.add(record.value());
                     recordsProcessed++;
             }
         }
+
+        return consumedRecords;
     }
 }
 
