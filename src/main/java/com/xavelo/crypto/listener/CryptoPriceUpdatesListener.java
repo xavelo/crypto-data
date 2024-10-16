@@ -10,11 +10,13 @@ import com.xavelo.crypto.model.Price;
 
 import java.util.concurrent.TimeUnit;
 
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -57,9 +59,10 @@ public class CryptoPriceUpdatesListener {
     }
 
     @KafkaListener(topics = "crypto-price-updates-topic", groupId = "crypto-price-updates-group", containerFactory = "kafkaListenerContainerFactory")
-    public void consume(@Payload String message, @Header(KafkaHeaders.RECEIVED_KEY) String key) throws JsonProcessingException, InterruptedException {
-        logger.info("Received message: key {} - value {}", key, message);
-        process(message);                
+    public void consume(ConsumerRecord<String, String> record, Acknowledgment acknowledgment) throws JsonProcessingException, InterruptedException {
+        logger.info("Received message: key {} - value {}", record.key(), record.value());
+        process(record.value());
+        acknowledgment.acknowledge();
     }
 
     private void process(String message) {
