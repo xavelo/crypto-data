@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 
-import io.micrometer.core.instrument.Counter; // {{ edit_1 }} Import Micrometer Counter
+import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 
 import lombok.Data;
@@ -19,7 +19,7 @@ public class ControllerExceptionHandler {
     private final Counter exceptionCounter;
 
     public ControllerExceptionHandler(MeterRegistry meterRegistry) {
-        this.exceptionCounter = Counter.builder("exceptions.total") // {{ edit_6 }} Create Counter
+        this.exceptionCounter = Counter.builder("crypto.price.processing.exceptions.total")
                 .description("Total number of exceptions handled")
                 .register(meterRegistry);
     }
