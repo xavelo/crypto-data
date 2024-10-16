@@ -61,7 +61,7 @@ public class CryptoPriceUpdatesListener {
     @KafkaListener(topics = "crypto-price-updates-topic", groupId = "crypto-price-updates-group", containerFactory = "kafkaListenerContainerFactory")
     public void consume(ConsumerRecord<String, String> record, Acknowledgment acknowledgment) throws JsonProcessingException, InterruptedException {
         logger.info("Received message: key {} - value {}", record.key(), record.value());        
-        process(record.value());        
+        process(record);        
         acknowledgment.acknowledge();
     }
 
@@ -73,7 +73,7 @@ public class CryptoPriceUpdatesListener {
             try {
                 long startTime = System.nanoTime();
 
-                Price price = objectMapper.readValue(message, Price.class);
+                Price price = objectMapper.readValue(record.value(), Price.class);
                 // simulate errors to test retry mechanism and observability
                 simulateUnreliableApiCall(20);
                 priceService.savePriceUpdate(price);
@@ -92,7 +92,7 @@ public class CryptoPriceUpdatesListener {
             } catch (Exception e) {
                 attempt++;
                 retryCounter.increment(); // Increment the retry counter
-                logger.error("Attempt {}: error {} processing message {}", attempt, e.getMessage(), message);
+                logger.error("Attempt {}: error {} processing record {}", attempt, e.getMessage(), record);
                 if (attempt >= MAX_RETRIES) {
                     sendToDLQ(record); // Send to DLQ after max retries
                 } else {
@@ -119,7 +119,7 @@ public class CryptoPriceUpdatesListener {
         kafkaTemplate.send(dlqRecord.topic(), dlqRecord.key(), dlqRecord.value());
     }
 
-    private void simulateUnreliableApiCall(int errorPercentage) ´
+    private void simulateUnreliableApiCall(int errorPercentage) {
         // Generate a random number between 0 and 100
         int randomValue = (int) (Math.random() * 100);
         if (randomValue < errorPercentage) {
