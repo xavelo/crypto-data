@@ -3,7 +3,6 @@ package com.xavelo.crypto.listener;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.xavelo.crypto.adapter.influxdb.InfluxDBAdapter;
-import com.xavelo.crypto.adapter.mongo.PriceDocument;
 import com.xavelo.crypto.adapter.mongo.PriceRepository;
 import com.xavelo.crypto.service.PriceService;
 import com.xavelo.crypto.model.Price;
@@ -17,9 +16,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.Acknowledgment;
-import org.springframework.kafka.support.KafkaHeaders;
-import org.springframework.messaging.handler.annotation.Header;
-import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 
 import io.micrometer.core.instrument.MeterRegistry;
@@ -32,7 +28,6 @@ public class CryptoPriceUpdatesListener {
     private static final Logger logger = LoggerFactory.getLogger(CryptoPriceUpdatesListener.class);
 
     private final PriceService priceService;
-    private final PriceRepository mongoPricerepository;
     private final InfluxDBAdapter influxDBAdapter;
     private final ObjectMapper objectMapper;
     private final MeterRegistry meterRegistry;
@@ -41,14 +36,12 @@ public class CryptoPriceUpdatesListener {
 
     private static final int MAX_RETRIES = 3; 
     
-    public CryptoPriceUpdatesListener(PriceService priceService, 
-                                      PriceRepository mongoPricerepository,
+    public CryptoPriceUpdatesListener(PriceService priceService,                                       
                                       InfluxDBAdapter influxDBAdapter,                                   
                                       ObjectMapper objectMapper, 
                                       MeterRegistry meterRegistry,
                                       KafkaTemplate<String, String> kafkaTemplate) {
-        this.priceService = priceService;
-        this.mongoPricerepository = mongoPricerepository;
+        this.priceService = priceService;        
         this.influxDBAdapter = influxDBAdapter;
         this.objectMapper = objectMapper;
         this.meterRegistry = meterRegistry;
@@ -75,7 +68,7 @@ public class CryptoPriceUpdatesListener {
 
                 Price price = objectMapper.readValue(record.value(), Price.class);
                 // simulate errors to test retry mechanism and observability
-                simulateUnreliableApiCall(20);
+                simulateUnreliableApiCall(50);
                 priceService.savePriceUpdate(price);
                 influxDBAdapter.writePriceUpdate(price);
 
