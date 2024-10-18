@@ -53,6 +53,7 @@ public class DlqController {
         Set<TopicPartition> partitions = consumer.assignment();
         consumer.resume(partitions);
 
+        logger.info("");
         // Log the current offsets for each partition
         for (TopicPartition partition : partitions) {
             long currentOffset = consumer.position(partition);  // Get current offset
@@ -64,15 +65,17 @@ public class DlqController {
         int recordsToProcess = Math.min(records.count(), numberOfRecords);
         int recordsProcessed = 0;
         for (var record : records) {
-            if (recordsProcessed <= recordsToProcess) {
+            if (recordsProcessed < recordsToProcess) {
+                logger.info("");
                 logger.info("reprocessing record: key={} value={}", record.key(), record.value());                
                 //kafkaTemplate.send("crypto-price-updates-topic", record.key(), record.value());
                 consumedRecords.add(record.value());
                 recordsProcessed++;
                 consumer.commitSync();
                 int partition = record.partition();  // Get the partition for the record
-                logger.info("Reprocessing record: key={} value={} from partition={} at offset={}",
-                       record.key(), record.value(), partition, record.offset());                
+                logger.info("reprocessing record: key={} value={} from partition={} at offset={}",
+                       record.key(), record.value(), partition, record.offset());  
+                logger.info("reprocessed records {}", recordsProcessed);
             }      
         }
         // Log the current offsets for each partition
