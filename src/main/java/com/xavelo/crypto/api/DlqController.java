@@ -63,6 +63,7 @@ public class DlqController {
                 //kafkaTemplate.send("crypto-price-updates-topic", record.key(), record.value());
                 consumedRecords.add(record.value());
                 recordsProcessed++;
+                consumer.commitSync();
             }      
         }
         consumer.pause(partitions);
