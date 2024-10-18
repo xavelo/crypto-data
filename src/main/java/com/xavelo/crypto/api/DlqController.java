@@ -6,6 +6,8 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -54,13 +56,14 @@ public class DlqController {
         Set<TopicPartition> partitions = consumer.assignment();
         if (partitions.isEmpty()) {
             logger.warn("dlq - No partitions assigned to the consumer");
-        }
+        }        
         consumer.resume(partitions);
 
-        logger.info("dlq - ");
-        // Log the current offsets for each partition
+        // Get the current offsets for each partition
+        Map<Integer,Long> partitionOffsets = new HashMap<>();
         for (TopicPartition partition : partitions) {
-            long currentOffset = consumer.position(partition);  // Get current offset
+            long currentOffset = consumer.position(partition);
+            partitionOffsets.put(partition.partition(), currentOffset);  // Get current offset
             logger.info("dlq - Current offset for partition {} is {}", partition.partition(), currentOffset);
         }
 
@@ -86,7 +89,7 @@ public class DlqController {
         partitions = consumer.assignment();
         logger.info("dlq partitions check: {}", partitions);
         for (TopicPartition partition : partitions) {
-            long position = consumer.position(partition);  // Get the current position
+            long position = partitionOffsets.get(partition.partition());  // Get the current position
             logger.info("dlq - Resetting position for partition {} to {}", partition.partition(), position);
             consumer.seek(partition, position);
         }
