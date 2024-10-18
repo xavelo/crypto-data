@@ -50,7 +50,7 @@ management:
 
 logging:
   level:
-    org.apache.kafka.clients.consumer.internals: DEBUG
-    org.apache.kafka.clients.consumer.internals.ConsumerCoordinator: DEBUG
+    org.apache.kafka.clients.consumer.internals.ConsumerCoordinator: INFO
+    org.apache.kafka.clients: INFO
 
   
