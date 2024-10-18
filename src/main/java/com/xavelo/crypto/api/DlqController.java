@@ -41,7 +41,7 @@ public class DlqController {
     
     @PostMapping("/process")
     public ResponseEntity<List<String>> processRecords(@RequestParam int numberOfRecords) {
-        logger.info("-> dlq reprocess {} DLQ records", numberOfRecords);
+        logger.info("--------------> dlq reprocess {} DLQ records", numberOfRecords);
         List<String> records = consumeRecordsFromTopic(DLQ_TOPIC, numberOfRecords);
         return ResponseEntity.ok(records); // Return a response
     }
