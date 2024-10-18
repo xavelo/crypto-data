@@ -18,9 +18,11 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
 
 import jakarta.annotation.PostConstruct;
 
+@Service
 public class DlqReprocessorService {
 
     private static final Logger logger = LoggerFactory.getLogger(DlqReprocessorService.class);
