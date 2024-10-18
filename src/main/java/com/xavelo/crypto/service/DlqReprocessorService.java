@@ -36,7 +36,7 @@ public class DlqReprocessorService {
         this.cryptoPriceUpdatesService = cryptoPriceUpdatesService;
     }
 
-    @Scheduled(fixedDelay = 60000) // running every 60 seconds
+    @Scheduled(fixedDelay = 300000) // running every 5 minutes
     public List<String> scheduledReprocessDlqMessages() {
         return reprocessDlqMessages(10);
     }
@@ -116,5 +116,5 @@ public class DlqReprocessorService {
         consumer.pause(partitions);         
     }
 
-    
+
 }
