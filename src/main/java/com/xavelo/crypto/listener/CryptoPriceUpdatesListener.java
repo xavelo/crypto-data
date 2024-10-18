@@ -69,7 +69,7 @@ public class CryptoPriceUpdatesListener {
                 // simulate errors to test retry mechanism and observability
                 //simulateUnreliableApiCall(0);
                 priceService.savePriceUpdate(price);
-                influxDBAdapter.writePriceUpdate(price);
+                //influxDBAdapter.writePriceUpdate(price);
 
                 long processingTime = (System.nanoTime() - startTime) / 1_000_000; // Convert to milliseconds
                 logger.info("crypto.price.processing.time: {}ms", processingTime);
