@@ -53,6 +53,12 @@ public class DlqController {
         Set<TopicPartition> partitions = consumer.assignment();
         consumer.resume(partitions);
 
+        // Log the current offsets for each partition
+        for (TopicPartition partition : partitions) {
+            long currentOffset = consumer.position(partition);  // Get current offset
+            logger.info("reprocess - Current offset for partition {} is {}", partition.partition(), currentOffset);
+        }
+
         ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(1000));
         logger.info("{} records consumed from crypto-price-updates-topic-dlq", records.count());            
         int recordsToProcess = Math.min(records.count(), numberOfRecords);
@@ -64,7 +70,15 @@ public class DlqController {
                 consumedRecords.add(record.value());
                 recordsProcessed++;
                 consumer.commitSync();
+                int partition = record.partition();  // Get the partition for the record
+                logger.info("Reprocessing record: key={} value={} from partition={} at offset={}",
+                       record.key(), record.value(), partition, record.offset());                
             }      
+        }
+        // Log the current offsets for each partition
+        for (TopicPartition partition : partitions) {
+            long currentOffset = consumer.position(partition);  // Get current offset
+            logger.info("reprocess - Current offset for partition {} is {}", partition.partition(), currentOffset);
         }
         consumer.pause(partitions);
         return consumedRecords;
