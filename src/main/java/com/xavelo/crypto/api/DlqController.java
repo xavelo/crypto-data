@@ -56,6 +56,7 @@ public class DlqController {
         Set<TopicPartition> partitions = consumer.assignment();
         if (partitions.isEmpty()) {
             logger.warn("dlq - No partitions assigned to the consumer");
+            return consumedRecords;
         }        
         consumer.resume(partitions);
 
