@@ -76,10 +76,9 @@ public class DlqController {
                 consumedRecords.add(record.value());
                 recordsProcessed++;
                 // Commit the offset for the specific record
+                logger.info("dlq Committing offset {} for partition {}", record.offset() + 1, record.partition());
                 consumer.commitSync(Collections.singletonMap(new TopicPartition(record.topic(), record.partition()), 
-                                                      new OffsetAndMetadata(record.offset() + 1)));                
-                logger.info("dlq record: key={} value={} from partition={} at offset={}",
-                       record.key(), record.value(), record.partition(), record.offset());  
+                                                      new OffsetAndMetadata(record.offset() + 1)));                                
                 logger.info("dlq {} reprocessed records", recordsProcessed);
             }      
         }
