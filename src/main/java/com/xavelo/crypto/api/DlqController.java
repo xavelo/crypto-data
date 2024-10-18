@@ -59,7 +59,7 @@ public class DlqController {
         int recordsProcessed = 0;
         for (var record : records) {
             if (recordsProcessed <= recordsToProcess) {
-                logger.info("Reprocessing record: key={} value={}", record.key(), record.value());                
+                logger.info("reprocessing record: key={} value={}", record.key(), record.value());                
                 //kafkaTemplate.send("crypto-price-updates-topic", record.key(), record.value());
                 consumedRecords.add(record.value());
                 recordsProcessed++;
