@@ -65,7 +65,7 @@ public class DlqController {
                 recordsProcessed++;
             }      
         }
-
+        consumer.pause(partitions);
         return consumedRecords;
     }
 
