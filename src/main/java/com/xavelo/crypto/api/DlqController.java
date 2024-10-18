@@ -24,6 +24,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.xavelo.crypto.service.CryptoPriceUpdatesService;
+
 import jakarta.annotation.PostConstruct;
 
 @RestController
@@ -34,11 +36,13 @@ public class DlqController {
 
     private KafkaConsumer<String, String> consumer;
     private final KafkaTemplate<String, String> kafkaTemplate;
+    private CryptoPriceUpdatesService cryptoPriceUpdatesService;
 
     private static final String DLQ_TOPIC = "crypto-price-updates-topic-dlq";
 
-    public DlqController(KafkaTemplate<String, String> kafkaTemplate) {
+    public DlqController(KafkaTemplate<String, String> kafkaTemplate, CryptoPriceUpdatesService cryptoPriceUpdatesService) {
         this.kafkaTemplate = kafkaTemplate;
+        this.cryptoPriceUpdatesService = cryptoPriceUpdatesService;
     }
     
     @PostMapping("/process")
@@ -50,13 +54,13 @@ public class DlqController {
     
     // New method to consume records from the specified topic
     private List<String> consumeRecordsFromTopic(int numberOfRecords) {
-        List<String> consumedRecords = new ArrayList<String>();
+        List<String> reprocessedRecords = new ArrayList<String>();
   
         consumer.poll(Duration.ofMillis(0));
         Set<TopicPartition> partitions = consumer.assignment();
         if (partitions.isEmpty()) {
             logger.warn("dlq - No partitions assigned to the consumer");
-            return consumedRecords;
+            return reprocessedRecords;
         }        
         consumer.resume(partitions);
 
@@ -76,9 +80,9 @@ public class DlqController {
         for (var record : records) {
             if (recordsProcessed < recordsToProcess) {
                 logger.info("dlq -");
-                logger.info("dlq record: key={} value={}", record.key(), record.value());                
-                //kafkaTemplate.send("crypto-price-updates-topic", record.key(), record.value());
-                consumedRecords.add(record.value());
+                logger.info("dlq reprocessing record: key={} value={}", record.key(), record.value());                
+                cryptoPriceUpdatesService.process(record);
+                reprocessedRecords.add(record.value());
                 recordsProcessed++;
                 // Commit the offset for the specific record
                 logger.info("dlq Committing offset {} for partition {}", record.offset() + 1, record.partition());
@@ -96,7 +100,7 @@ public class DlqController {
             consumer.seek(partition, position);
         }
         consumer.pause(partitions);
-        return consumedRecords;
+        return reprocessedRecords;
     }
 
     @PostConstruct
