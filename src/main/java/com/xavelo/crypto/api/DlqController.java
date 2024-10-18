@@ -52,38 +52,42 @@ public class DlqController {
   
         consumer.poll(Duration.ofMillis(0));
         Set<TopicPartition> partitions = consumer.assignment();
+        if (partitions.isEmpty()) {
+            logger.warn("dlq - No partitions assigned to the consumer");
+            return consumedRecords;
+        }
         consumer.resume(partitions);
 
-        logger.info("");
+        logger.info("dlq - ");
         // Log the current offsets for each partition
         for (TopicPartition partition : partitions) {
             long currentOffset = consumer.position(partition);  // Get current offset
-            logger.info("reprocess - Current offset for partition {} is {}", partition.partition(), currentOffset);
+            logger.info("dlq - Current offset for partition {} is {}", partition.partition(), currentOffset);
         }
 
         ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(1000));
-        logger.info("{} records consumed from crypto-price-updates-topic-dlq", records.count());            
+        logger.info("dlq {} records consumed from {}-dlq", records.count(), topic);       
         int recordsToProcess = Math.min(records.count(), numberOfRecords);
         int recordsProcessed = 0;
         for (var record : records) {
             if (recordsProcessed < recordsToProcess) {
-                logger.info("");
-                logger.info("reprocessing record: key={} value={}", record.key(), record.value());                
+                logger.info("dlq -");
+                logger.info("dlq record: key={} value={}", record.key(), record.value());                
                 //kafkaTemplate.send("crypto-price-updates-topic", record.key(), record.value());
                 consumedRecords.add(record.value());
                 recordsProcessed++;
                 // Commit the offset for the specific record
                 consumer.commitSync(Collections.singletonMap(new TopicPartition(record.topic(), record.partition()), 
                                                       new OffsetAndMetadata(record.offset() + 1)));                
-                logger.info("reprocessing record: key={} value={} from partition={} at offset={}",
+                logger.info("dlq record: key={} value={} from partition={} at offset={}",
                        record.key(), record.value(), record.partition(), record.offset());  
-                logger.info("reprocessed records {}", recordsProcessed);
+                logger.info("dlq {} reprocessed records", recordsProcessed);
             }      
         }
         // Log the current offsets for each partition
         for (TopicPartition partition : partitions) {
             long currentOffset = consumer.position(partition);  // Get current offset
-            logger.info("reprocess - Current offset for partition {} is {}", partition.partition(), currentOffset);
+            logger.info("dlq - Current offset for partition {} is {}", partition.partition(), currentOffset);
         }
         consumer.pause(partitions);
         return consumedRecords;
