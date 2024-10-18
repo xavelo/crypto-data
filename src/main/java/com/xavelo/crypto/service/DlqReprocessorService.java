@@ -42,7 +42,7 @@ public class DlqReprocessorService {
     }
     
     public List<String> reprocessDlqMessages(int numberOfRecords) {
-        logger.info("---------> dlq reprocessDlqMessages({})", numberOfRecords);
+        logger.info("----------> dlq reprocessDlqMessages({})", numberOfRecords);
         List<String> reprocessedRecords = new ArrayList<String>();
   
         consumer.poll(Duration.ofMillis(0));
