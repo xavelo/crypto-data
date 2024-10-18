@@ -42,12 +42,12 @@ public class DlqController {
     @PostMapping("/process")
     public ResponseEntity<List<String>> processRecords(@RequestParam int numberOfRecords) {
         logger.info("--------------> dlq reprocess {} DLQ records", numberOfRecords);
-        List<String> records = consumeRecordsFromTopic(DLQ_TOPIC, numberOfRecords);
+        List<String> records = consumeRecordsFromTopic(numberOfRecords);
         return ResponseEntity.ok(records); // Return a response
     }
     
     // New method to consume records from the specified topic
-    private List<String> consumeRecordsFromTopic(String topic, int numberOfRecords) {
+    private List<String> consumeRecordsFromTopic(int numberOfRecords) {
         List<String> consumedRecords = new ArrayList<String>();
   
         consumer.poll(Duration.ofMillis(0));
@@ -65,7 +65,7 @@ public class DlqController {
         }
 
         ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(1000));
-        logger.info("dlq {} records consumed from {}", records.count(), topic);       
+        logger.info("dlq {} records polled", records.count());       
         int recordsToProcess = Math.min(records.count(), numberOfRecords);
         int recordsProcessed = 0;
         for (var record : records) {
@@ -103,6 +103,7 @@ public class DlqController {
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "100");
         props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, "30000"); // 30 seconds
         props.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, "300000"); // 5 minutes
         props.put(ConsumerConfig.HEARTBEAT_INTERVAL_MS_CONFIG, "3000"); // 3 seconds
