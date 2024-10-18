@@ -67,7 +67,7 @@ public class CryptoPriceUpdatesListener {
 
                 Price price = objectMapper.readValue(record.value(), Price.class);
                 // simulate errors to test retry mechanism and observability
-                simulateUnreliableApiCall(90);
+                simulateUnreliableApiCall(0);
                 priceService.savePriceUpdate(price);
                 influxDBAdapter.writePriceUpdate(price);
 
