@@ -47,4 +47,10 @@ management:
   #    org: ${spring.influx.org}
   #    token: ${spring.influx.token}
   #    uri: ${spring.influx.url}
+
+logging:
+  level:
+    org.apache.kafka.clients.consumer.internals: DEBUG
+    org.apache.kafka.clients.consumer.internals.ConsumerCoordinator: DEBUG
+
   
