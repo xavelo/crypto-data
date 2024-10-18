@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: crypto-data-deployment
   annotations:
-    commitID: "8dbf2d99d8a920a4826cf0cba76a0e64971da932"
+    commitID: "d6b65e2e89c91ec282eeebfa089eb29458fbe6b3"
 spec:
   replicas: 2
   selector:
@@ -21,6 +21,6 @@ spec:
     spec:
       containers:
         - name: crypto-data
-          image: 'xavelo/crypto-data:8dbf2d99d8a920a4826cf0cba76a0e64971da932'
+          image: 'xavelo/crypto-data:d6b65e2e89c91ec282eeebfa089eb29458fbe6b3'
           ports:
             - containerPort: 80
