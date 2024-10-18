@@ -94,7 +94,7 @@ public class DlqController {
 
     @PostConstruct
     public void initConsumer() {
-        logger.info("reprocess initConsumer");
+        logger.info("dlq reprocess initConsumer");
         Properties props = new Properties();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "my-cluster-kafka-bootstrap.default.svc:9092");
         props.put(ConsumerConfig.GROUP_ID_CONFIG, "dlq-reprocessor-group");
@@ -111,7 +111,7 @@ public class DlqController {
         consumer.subscribe(Collections.singletonList(DLQ_TOPIC));
         consumer.poll(Duration.ofMillis(0)); // Ensure partitions are assigned
         Set<TopicPartition> partitions = consumer.assignment(); // Get assigned partitions
-        logger.info("assigned partitions: {}", partitions.size());
+        logger.info("dlq reprocess assigned partitions: {}", partitions.size());
         consumer.pause(partitions);         
     }
 
