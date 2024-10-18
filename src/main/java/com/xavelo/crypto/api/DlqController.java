@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.TopicPartition;
 import org.slf4j.Logger;
@@ -71,10 +72,11 @@ public class DlqController {
                 //kafkaTemplate.send("crypto-price-updates-topic", record.key(), record.value());
                 consumedRecords.add(record.value());
                 recordsProcessed++;
-                consumer.commitSync();
-                int partition = record.partition();  // Get the partition for the record
+                // Commit the offset for the specific record
+                consumer.commitSync(Collections.singletonMap(new TopicPartition(record.topic(), record.partition()), 
+                                                      new OffsetAndMetadata(record.offset() + 1)));                
                 logger.info("reprocessing record: key={} value={} from partition={} at offset={}",
-                       record.key(), record.value(), partition, record.offset());  
+                       record.key(), record.value(), record.partition(), record.offset());  
                 logger.info("reprocessed records {}", recordsProcessed);
             }      
         }
