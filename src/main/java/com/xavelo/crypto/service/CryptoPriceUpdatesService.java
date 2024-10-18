@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.xavelo.crypto.adapter.influxdb.InfluxDBAdapter;
-import com.xavelo.crypto.listener.CryptoPriceUpdatesListener;
 import com.xavelo.crypto.model.Price;
 
 import java.util.concurrent.TimeUnit;
@@ -31,7 +30,7 @@ public class CryptoPriceUpdatesService {
 
     private static final int MAX_RETRIES = 3; 
 
-    public CryptoPriceUpdateService(PriceService priceService, 
+    public CryptoPriceUpdatesService(PriceService priceService, 
                                     InfluxDBAdapter influxDBAdapter, 
                                     ObjectMapper objectMapper, 
                                     MeterRegistry meterRegistry, 
