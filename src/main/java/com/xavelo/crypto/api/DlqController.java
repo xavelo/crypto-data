@@ -61,8 +61,9 @@ public class DlqController {
 
         // Get the current offsets for each partition
         Map<Integer,Long> partitionOffsets = new HashMap<>();
+        long currentOffset = 0;
         for (TopicPartition partition : partitions) {
-            long currentOffset = consumer.position(partition);
+            currentOffset = consumer.position(partition);
             partitionOffsets.put(partition.partition(), currentOffset);  // Get current offset
             logger.info("dlq - Current offset for partition {} is {}", partition.partition(), currentOffset);
         }
@@ -89,7 +90,7 @@ public class DlqController {
         partitions = consumer.assignment();
         logger.info("dlq partitions check: {}", partitions);
         for (TopicPartition partition : partitions) {
-            long position = partitionOffsets.get(partition.partition());  // Get the current position
+            long position = currentOffset + recordsProcessed;
             logger.info("dlq - Resetting position for partition {} to {}", partition.partition(), position);
             consumer.seek(partition, position);
         }
