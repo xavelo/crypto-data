@@ -29,9 +29,8 @@
 		</dependency>
 		<!-- Kafka Streams -->
         <dependency>
-            <groupId>org.springframework.kafka</groupId>
-            <artifactId>spring-kafka-streams</artifactId>
-			<version>3.6.1</version>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-streams</artifactId>
         </dependency>
 		<!-- mongodb -->
 		<dependency>
