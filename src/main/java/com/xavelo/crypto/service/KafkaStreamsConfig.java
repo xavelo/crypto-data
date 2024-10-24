@@ -31,7 +31,7 @@ public class KafkaStreamsConfig {
                         price.getCoin(), price.getPrice(), price.getCurrency(), price.getTimestamp()));
                 return price; // Return the Price object if needed
             } catch (Exception e) {
-                logger.warning("Failed to deserialize Price from JSON: " + value);
+                logger.warning("Failed to deserialize Price from JSON: " + value, e);
                 return null; // Handle invalid JSON
             }
         }).filter((key, value) -> key == "BTC"); // Filter out invalid Price objects
