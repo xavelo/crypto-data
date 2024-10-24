@@ -28,10 +28,10 @@
 			<artifactId>spring-kafka</artifactId>
 		</dependency>
 		<!-- Kafka Streams -->
-
         <dependency>
-            <groupId>org.apache.kafka</groupId>
-            <artifactId>kafka-streams</artifactId>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka-streams</artifactId>
+			<version>3.6.1</version>
         </dependency>
 		<!-- mongodb -->
 		<dependency>
