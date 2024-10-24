@@ -1,6 +1,7 @@
 package com.xavelo.crypto.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import lombok.AllArgsConstructor;
@@ -21,5 +22,6 @@ public class Price {
     @JsonProperty("currency")
     private String currency;
     @JsonSerialize(using = CustomInstantSerializer.class)
+    @JsonDeserialize(using = CustomInstantDeserializer.class)
     private Instant timestamp;
 }
