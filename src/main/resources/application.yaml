@@ -2,16 +2,20 @@ spring:
   application:
     name: crypto-data
   kafka:
+    bootstrap-servers: my-cluster-kafka-bootstrap.default.svc:9092
     producer:
-      bootstrap-servers: my-cluster-kafka-bootstrap.default.svc:9092
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
     consumer:
-      bootstrap-servers: my-cluster-kafka-bootstrap.default.svc:9092
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
     listener:
       ack-mode: MANUAL
+    streams:
+      application-id: stream-prices
+      properties:
+        default.key.serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+        default.value.serde: org.apache.kafka.common.serialization.Serdes$StringSerde
   data:
     mongodb:
       uri: mongodb://adminuser:password123@10.43.246.249:27017/admin
