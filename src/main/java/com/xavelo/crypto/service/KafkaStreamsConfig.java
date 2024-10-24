@@ -9,13 +9,14 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafkaStreams;
 
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Configuration
 @EnableKafkaStreams
 public class KafkaStreamsConfig {
 
-    private static final Logger logger = Logger.getLogger(KafkaStreamsConfig.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(KafkaStreamsConfig.class.getName());
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Bean
@@ -31,7 +32,7 @@ public class KafkaStreamsConfig {
                         price.getCoin(), price.getPrice(), price.getCurrency(), price.getTimestamp()));
                 return price; // Return the Price object if needed
             } catch (Exception e) {
-                logger.warning("Failed to deserialize Price from JSON: " + value, e);
+                logger.error("Failed to deserialize Price from JSON: " + value, e);
                 return null; // Handle invalid JSON
             }
         }).filter((key, value) -> key == "BTC"); // Filter out invalid Price objects
