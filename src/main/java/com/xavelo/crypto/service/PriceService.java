@@ -14,6 +14,5 @@ public interface PriceService {
     public Price getLastPriceByCoin(String coin);
     public List<Price> getPriceUpdatesByCoin(String coin);
     public Price getHistoricalPriceByCoin(String coin, int range, String unit);
-    public BigDecimal getAveragePriceByCoinInRange(String coin, int range, String unit);
-    
+    public BigDecimal getAveragePriceByCoinInRange(String coin, int range, String unit);   
 }

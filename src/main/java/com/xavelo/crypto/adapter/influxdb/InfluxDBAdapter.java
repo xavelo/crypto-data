@@ -15,7 +15,6 @@ import com.influxdb.query.FluxTable; // Import for Flux queries
 import io.micrometer.core.instrument.MeterRegistry;
 
 import java.util.List;
-import java.time.Instant;
 
 import com.xavelo.crypto.model.Price; // Ensure the correct import for Price
 
@@ -45,10 +44,10 @@ public class InfluxDBAdapter {
         }
         long endTime = System.nanoTime();
         long processingTime = (endTime - startTime) / 1_000_000;
-        logger.info("crypto.price.save.influxdb.time: {}ms", processingTime);
+        logger.debug("crypto.price.save.influxdb.time: {}ms", processingTime);
 
         Double averageLast1h = getAveragePrice(price.getCoin(), 1, "h");
-        logger.info("1h average {} price: {}", price.getCoin(), averageLast1h);
+        logger.debug("1h average {} price: {}", price.getCoin(), averageLast1h);
 
         /*
         Timer timer = Timer.builder("crypto.price.save.influxdb.timee")

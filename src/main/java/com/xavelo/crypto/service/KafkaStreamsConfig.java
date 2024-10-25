@@ -34,30 +34,29 @@ public class KafkaStreamsConfig {
     
         KStream<String, BigDecimal> bigDecimalStream = stream
             .mapValues(value -> {
-                try {
-                    // Assuming the value is a JSON string that contains the price
+                try {                    
                     Price price = objectMapper.readValue(value, Price.class);
                     logger.info("*** logsstreams price value for {}: {}", price.getCoin(), price.getPrice());
-                    return price.getPrice(); // Assuming getPrice() returns a BigDecimal
+                    return price.getPrice();
                 } catch (Exception e) {
                     logger.error("Failed to deserialize Price from JSON: " + value, e);
-                    return null; // Handle invalid JSON
+                    return null;
                 }
             })
-            .filter((key, value) -> value != null); // Filter out any null values
+            .filter((key, value) -> value != null);
     
         KTable<Windowed<String>, BigDecimal> averageBTCPrices = bigDecimalStream
-            .groupBy((key, value) -> "BTC") // Group by coin type (e.g., "BTC")
-            .windowedBy(TimeWindows.of(Duration.ofHours(4))) // Define a time window
+            .groupBy((key, value) -> "BTC")
+            .windowedBy(TimeWindows.of(Duration.ofHours(4)))
             .aggregate(
-                () -> BigDecimal.ZERO, // Initial value
+                () -> BigDecimal.ZERO,
                 (key, value, aggregate) -> {
                     // Calculate the new average price
                     // You will need to maintain the count of prices in a more complex implementation
                     logger.info("*** streams calculate average price with key {} and value {}", key, value);
                     return aggregate.add(value); // Update the aggregate
                 },
-                Materialized.with(Serdes.String(), new BigDecimalSerde()) // Use your custom BigDecimal Serde
+                Materialized.with(Serdes.String(), new BigDecimalSerde())
             );
     
         // You may want to write the average prices to a new topic or log them
