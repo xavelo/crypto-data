@@ -37,6 +37,7 @@ public class KafkaStreamsConfig {
                 try {
                     // Assuming the value is a JSON string that contains the price
                     Price price = objectMapper.readValue(value, Price.class);
+                    logger.info("*** logsstreams price value for {}: {}", price.getCoin(), price.getPrice());
                     return price.getPrice(); // Assuming getPrice() returns a BigDecimal
                 } catch (Exception e) {
                     logger.error("Failed to deserialize Price from JSON: " + value, e);
@@ -53,6 +54,7 @@ public class KafkaStreamsConfig {
                 (key, value, aggregate) -> {
                     // Calculate the new average price
                     // You will need to maintain the count of prices in a more complex implementation
+                    logger.info("*** streams calculate average price with key {} and value {}", key, value);
                     return aggregate.add(value); // Update the aggregate
                 },
                 Materialized.with(Serdes.String(), new BigDecimalSerde()) // Use your custom BigDecimal Serde
