@@ -2,8 +2,14 @@ package com.xavelo.crypto.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.xavelo.crypto.model.Price;
+import com.xavelo.crypto.model.serdes.BigDecimalSerde;
 
 import org.apache.kafka.streams.kstream.KStream;
+import org.apache.kafka.streams.kstream.KTable;
+import org.apache.kafka.streams.kstream.Materialized;
+import org.apache.kafka.streams.kstream.TimeWindows;
+import org.apache.kafka.streams.kstream.Windowed;
+import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,6 +17,9 @@ import org.springframework.kafka.annotation.EnableKafkaStreams;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.time.Duration;
+import java.math.BigDecimal;
 
 @Configuration
 @EnableKafkaStreams
@@ -20,23 +29,42 @@ public class KafkaStreamsConfig {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Bean
-    public KStream<String, String> kStream(StreamsBuilder streamsBuilder) {
+    public KStream<String, BigDecimal> kStream(StreamsBuilder streamsBuilder) {
         KStream<String, String> stream = streamsBuilder.stream("crypto-price-updates-topic");
-
-        stream.mapValues(value -> {
-            try {
-                // Deserialize the JSON string to a Price object
-                Price price = objectMapper.readValue(value, Price.class);
-                // Log the price
-                logger.info(String.format("streams - Received price update: Coin: %s, Price: %s, Currency: %s, Timestamp: %s",
-                        price.getCoin(), price.getPrice(), price.getCurrency(), price.getTimestamp()));
-                return price; // Return the Price object if needed
-            } catch (Exception e) {
-                logger.error("Failed to deserialize Price from JSON: " + value, e);
-                return null; // Handle invalid JSON
-            }
-        }).filter((key, value) -> key == "BTC"); // Filter out invalid Price objects
-
-        return stream; // Return the KStream
+    
+        KStream<String, BigDecimal> bigDecimalStream = stream
+            .mapValues(value -> {
+                try {
+                    // Assuming the value is a JSON string that contains the price
+                    Price price = objectMapper.readValue(value, Price.class);
+                    return price.getPrice(); // Assuming getPrice() returns a BigDecimal
+                } catch (Exception e) {
+                    logger.error("Failed to deserialize Price from JSON: " + value, e);
+                    return null; // Handle invalid JSON
+                }
+            })
+            .filter((key, value) -> value != null); // Filter out any null values
+    
+        KTable<Windowed<String>, BigDecimal> averageBTCPrices = bigDecimalStream
+            .groupBy((key, value) -> "BTC") // Group by coin type (e.g., "BTC")
+            .windowedBy(TimeWindows.of(Duration.ofHours(4))) // Define a time window
+            .aggregate(
+                () -> BigDecimal.ZERO, // Initial value
+                (key, value, aggregate) -> {
+                    // Calculate the new average price
+                    // You will need to maintain the count of prices in a more complex implementation
+                    return aggregate.add(value); // Update the aggregate
+                },
+                Materialized.with(Serdes.String(), new BigDecimalSerde()) // Use your custom BigDecimal Serde
+            );
+    
+        // You may want to write the average prices to a new topic or log them
+        averageBTCPrices.toStream().foreach((windowedKey, averagePrice) -> {
+            logger.info(String.format("Average BTC Price in the last 4 hours: %s, Average Price: %s", 
+                windowedKey.key(), averagePrice));
+        });
+    
+        return bigDecimalStream; // Return the transformed stream
     }
+
 }
