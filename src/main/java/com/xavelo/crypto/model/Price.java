@@ -21,7 +21,7 @@ public class Price {
     private BigDecimal price;
     @JsonProperty("currency")
     private String currency;
-    @JsonSerialize(using = CustomInstantSerializer.class)
+    //@JsonSerialize(using = CustomInstantSerializer.class)
     //@JsonDeserialize(using = CustomInstantDeserializer.class)
     private Instant timestamp;
 }

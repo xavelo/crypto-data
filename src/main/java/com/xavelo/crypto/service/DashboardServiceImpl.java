@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 
 import com.xavelo.crypto.model.Price;
 import com.xavelo.crypto.model.Trend;
-import com.xavelo.crypto.adapter.redis.RedisAdapter;
 import com.xavelo.crypto.model.Coin;
 
 @Component
