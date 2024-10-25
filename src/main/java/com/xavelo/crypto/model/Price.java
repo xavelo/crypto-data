@@ -9,7 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.time.Instant;
+import java.util.Date;
 
 @Data
 @NoArgsConstructor
@@ -23,5 +23,5 @@ public class Price {
     private String currency;
     //@JsonSerialize(using = CustomInstantSerializer.class)
     //@JsonDeserialize(using = CustomInstantDeserializer.class)
-    private Instant timestamp;
+    private Date timestamp;
 }

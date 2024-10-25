@@ -15,6 +15,7 @@ import com.influxdb.query.FluxTable; // Import for Flux queries
 import io.micrometer.core.instrument.MeterRegistry;
 
 import java.util.List;
+import java.time.Instant;
 
 import com.xavelo.crypto.model.Price; // Ensure the correct import for Price
 
@@ -38,7 +39,7 @@ public class InfluxDBAdapter {
                 .addTag("coin", price.getCoin())
                 .addTag("currency", price.getCurrency())
                 .addField("price", price.getPrice().doubleValue())
-                .time(price.getTimestamp(), WritePrecision.NS);
+                .time(price.getTimestamp().toInstant(), WritePrecision.NS);
             
             writeApi.writePoint(point);
         }

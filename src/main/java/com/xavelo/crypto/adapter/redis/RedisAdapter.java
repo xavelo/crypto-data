@@ -1,7 +1,6 @@
 package com.xavelo.crypto.adapter.redis;
 
 import java.math.BigDecimal;
-import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -9,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -40,9 +40,9 @@ public class RedisAdapter implements PriceService {
     public void savePriceUpdate(Price price) {
         long startTime = System.nanoTime();
         String hashKey = "coin:" + price.getCoin();
-        redisTemplate.opsForHash().put(hashKey, "price:" + price.getTimestamp().toEpochMilli(), price.getPrice().toString());
-        redisTemplate.opsForHash().put(hashKey, "currency:" + price.getTimestamp().toEpochMilli(), price.getCurrency());
-        redisTemplate.opsForValue().set("last_price:" + price.getCoin(), price.getPrice().toString() + ":" + price.getTimestamp().toEpochMilli() + ":" + price.getCurrency());
+        redisTemplate.opsForHash().put(hashKey, "price:" + price.getTimestamp().getTime(), price.getPrice().toString());
+        redisTemplate.opsForHash().put(hashKey, "currency:" + price.getTimestamp().getTime(), price.getCurrency());
+        redisTemplate.opsForValue().set("last_price:" + price.getCoin(), price.getPrice().toString() + ":" + price.getTimestamp().getTime() + ":" + price.getCurrency());
         long endTime = System.nanoTime();
         long processingTime = (endTime - startTime) / 1_000_000;
         logger.info("crypto.price.save.redis.time: {}ms", processingTime);
@@ -112,7 +112,7 @@ public class RedisAdapter implements PriceService {
         String hashKey = "coin:" + coin;
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(hashKey);
         BigDecimal lastPrice = null;
-        Instant lastTimestamp = null;
+        Date lastTimestamp = null;
         String lastCurrency = null;
         
         for (Map.Entry<Object, Object> entry : entries.entrySet()) {
@@ -120,8 +120,8 @@ public class RedisAdapter implements PriceService {
             String value = (String) entry.getValue();
             if (key.startsWith("price:")) {
                 long epochMilli = Long.parseLong(key.split(":")[1]);
-                Instant timestamp = Instant.ofEpochMilli(epochMilli); 
-                if (lastTimestamp == null || timestamp.isAfter(lastTimestamp)) {
+                Date timestamp = Date.from(Instant.ofEpochMilli(epochMilli));
+                if (lastTimestamp == null || timestamp.toInstant().isAfter(lastTimestamp.toInstant())) {
                     lastPrice = new BigDecimal(value);
                     lastTimestamp = timestamp;
                 }
@@ -137,8 +137,8 @@ public class RedisAdapter implements PriceService {
         String hashKey = "coin:" + coin;
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(hashKey);
         
-        Instant now = Instant.now();
-        Instant targetTimestamp = Instant.ofEpochMilli(getStartTime(System.currentTimeMillis(), range, unit));
+        Date now = Date.from(Instant.now());
+        Date targetTimestamp = Date.from(Instant.ofEpochMilli(getStartTime(System.currentTimeMillis(), range, unit)));
         
         // Log the targetTimestamp for debugging
         logger.info("targetTimestamp for coin {}: {} - now {}", coin, targetTimestamp, now);
@@ -151,11 +151,16 @@ public class RedisAdapter implements PriceService {
             String key = (String) entry.getKey();
             String value = (String) entry.getValue();
             if (key.startsWith("price:")) {
-                Instant timestamp = Instant.ofEpochMilli(Long.parseLong(key.split(":")[1]));
+                // Parse the timestamp from the key
+                Date timestamp = new Date(Long.parseLong(key.split(":")[1]));
+
                 // Check if the timestamp is within the range with a 30 seconds margin
-                if (timestamp.compareTo(now) <= 0 && timestamp.compareTo(targetTimestamp.minusMillis(margin)) >= 0 && 
+                if (timestamp.compareTo(now) <= 0 && 
+                    timestamp.compareTo(new Date(targetTimestamp.getTime() - margin)) >= 0 && 
                     (historicalPrice == null || 
-                    Duration.between(targetTimestamp, timestamp).abs().compareTo(Duration.between(targetTimestamp, historicalPrice.getTimestamp())) < 0)) { 
+                    Math.abs(targetTimestamp.getTime() - timestamp.getTime()) < 
+                    Math.abs(targetTimestamp.getTime() - historicalPrice.getTimestamp().getTime()))) {
+                        
                     historicalPrice = new Price(coin, new BigDecimal(value), null, timestamp);
                 }
             }
@@ -241,8 +246,8 @@ public class RedisAdapter implements PriceService {
             String key = (String) entry.getKey();
             String value = (String) entry.getValue();
             if (key.startsWith("price:")) {
-                Instant timestamp = Instant.ofEpochMilli(Long.parseLong(key.split(":")[1]));
-                String currency = currencyMap.get(timestamp.toEpochMilli()); // Get currency from map
+                Date timestamp = Date.from(Instant.ofEpochMilli(Long.parseLong(key.split(":")[1])));
+                String currency = currencyMap.get(timestamp.getTime()); // Get currency from map
                 prices.add(new Price(coin, new BigDecimal(value), currency, timestamp)); // {{ edit_3 }}
             }
         }
