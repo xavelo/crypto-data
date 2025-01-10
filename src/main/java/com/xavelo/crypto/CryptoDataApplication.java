@@ -42,7 +42,7 @@ public class CryptoDataApplication {
         String DLQ_TOPIC = "crypto-price-updates-topic-dlq";
         System.out.println("dlq reprocess initDlqConsumer");
         Properties props = new Properties();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "my-cluster-kafka-bootstrap.default.svc:9092");
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "my-cluster-kafka-bootstrap.kafka.svc.cluster.local:9092");
         props.put(ConsumerConfig.GROUP_ID_CONFIG, "dlq-reprocessor-group" + System.currentTimeMillis());
         props.put(ConsumerConfig.CLIENT_ID_CONFIG, "dlq-reprocessor-client" + System.currentTimeMillis());
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
