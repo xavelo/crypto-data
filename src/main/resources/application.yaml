@@ -2,7 +2,7 @@ spring:
   application:
     name: crypto-data
   kafka:
-    bootstrap-servers: my-cluster-kafka-bootstrap.default.svc:9092
+    bootstrap-servers: my-cluster-kafka-bootstrap.kafka.svc.cluster.local:9092
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
