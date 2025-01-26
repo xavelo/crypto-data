@@ -30,10 +30,12 @@ public class DlqReprocessorService {
         this.dlqConsumer = dlqConsumer;
     }
 
+    /*
     @Scheduled(fixedDelay = 300000) // running every 5 minutes
     public List<String> scheduledReprocessDlqMessages() {
         return reprocessDlqMessages(10);
     }
+    */
     
     public List<String> reprocessDlqMessages(int numberOfRecords) {
         logger.info("----------> dlq reprocessDlqMessages({})", numberOfRecords);
