@@ -22,7 +22,6 @@ public class CryptoPriceUpdatesService {
     private static final Logger logger = LoggerFactory.getLogger(CryptoPriceUpdatesService.class);
 
     private PriceService priceService;
-    private InfluxDBAdapter influxDBAdapter;
     private ObjectMapper objectMapper;
     private MeterRegistry meterRegistry;
     private KafkaTemplate<String, String> kafkaTemplate;
@@ -30,13 +29,11 @@ public class CryptoPriceUpdatesService {
 
     private static final int MAX_RETRIES = 3; 
 
-    public CryptoPriceUpdatesService(PriceService priceService, 
-                                    InfluxDBAdapter influxDBAdapter, 
+    public CryptoPriceUpdatesService(PriceService priceService,
                                     ObjectMapper objectMapper, 
                                     MeterRegistry meterRegistry, 
                                     KafkaTemplate kafkaTemplate) {
         this.priceService = priceService;
-        this.influxDBAdapter = influxDBAdapter;
         this.objectMapper = objectMapper;
         this.meterRegistry = meterRegistry;
         this.kafkaTemplate = kafkaTemplate;
@@ -56,7 +53,7 @@ public class CryptoPriceUpdatesService {
                 Price price = objectMapper.readValue(record.value(), Price.class);
                 // simulate errors to test retry mechanism and observability
                 //simulateUnreliableApiCall(0);
-                //priceService.savePriceUpdate(price);
+                priceService.savePriceUpdate(price);
 
                 long processingTime = (System.nanoTime() - startTime) / 1_000_000; // Convert to milliseconds
                 logger.info("crypto.price.processing.time: {}ms", processingTime);

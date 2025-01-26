@@ -16,12 +16,12 @@ spring:
       properties:
         default.key.serde: org.apache.kafka.common.serialization.Serdes$StringSerde
         default.value.serde: org.apache.kafka.common.serialization.Serdes$StringSerde
-  #data:
+  data:
   #  mongodb:
   #    uri: mongodb://adminuser:password123@10.43.246.249:27017/admin
-  #  redis:
-  #    host: redis-service.redis.svc.cluster.local # 10.43.133.15
-  #    port: 6379
+    redis:
+      host: redis-service.redis.svc.cluster.local
+      port: 6379
   #influx:
   #  url: http://influxdb-service.default.svc.cluster.local:8086
   #  bucket: crypto
@@ -42,13 +42,6 @@ management:
   endpoint:
     prometheus:
       enabled: true
-  #export:
-  #  influx:
-  #    enabled: true
-  #    bucket: ${spring.influx.bucket}
-  #    org: ${spring.influx.org}
-  #    token: ${spring.influx.token}
-  #    uri: ${spring.influx.url}
 
 logging:
   level:
