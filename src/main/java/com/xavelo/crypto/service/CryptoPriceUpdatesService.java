@@ -7,7 +7,6 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.xavelo.crypto.adapter.influxdb.InfluxDBAdapter;
 import com.xavelo.crypto.model.Price;
 
 import java.util.concurrent.TimeUnit;
