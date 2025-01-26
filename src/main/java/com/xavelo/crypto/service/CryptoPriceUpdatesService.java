@@ -56,8 +56,7 @@ public class CryptoPriceUpdatesService {
                 Price price = objectMapper.readValue(record.value(), Price.class);
                 // simulate errors to test retry mechanism and observability
                 //simulateUnreliableApiCall(0);
-                priceService.savePriceUpdate(price);
-                //influxDBAdapter.writePriceUpdate(price);
+                //priceService.savePriceUpdate(price);
 
                 long processingTime = (System.nanoTime() - startTime) / 1_000_000; // Convert to milliseconds
                 logger.info("crypto.price.processing.time: {}ms", processingTime);

@@ -16,17 +16,17 @@ spring:
       properties:
         default.key.serde: org.apache.kafka.common.serialization.Serdes$StringSerde
         default.value.serde: org.apache.kafka.common.serialization.Serdes$StringSerde
-  data:
-    mongodb:
-      uri: mongodb://adminuser:password123@10.43.246.249:27017/admin
-    redis:
-      host: redis-service.redis.svc.cluster.local # 10.43.133.15
-      port: 6379
-  influx:
-    url: http://influxdb-service.default.svc.cluster.local:8086
-    bucket: crypto
-    org: xavelo.com
-    token: rRfGF0-quQ8bkjlXxaS_qzCK0VVG_-jj3h47AnndP05D_-3ElKhdI86gnyzGiikBZPn6fDt-g4oF2577BJ4RKA== 
+  #data:
+  #  mongodb:
+  #    uri: mongodb://adminuser:password123@10.43.246.249:27017/admin
+  #  redis:
+  #    host: redis-service.redis.svc.cluster.local # 10.43.133.15
+  #    port: 6379
+  #influx:
+  #  url: http://influxdb-service.default.svc.cluster.local:8086
+  #  bucket: crypto
+  #  org: xavelo.com
+  #  token: rRfGF0-quQ8bkjlXxaS_qzCK0VVG_-jj3h47AnndP05D_-3ElKhdI86gnyzGiikBZPn6fDt-g4oF2577BJ4RKA==
   #metrics:
   #  export:
   #    prometheus:
