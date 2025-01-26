@@ -47,10 +47,12 @@ public class RedisAdapter implements PriceService {
         long processingTime = (endTime - startTime) / 1_000_000;
         logger.info("crypto.price.save.redis.time: {}ms", processingTime);
         // Send metric to metrics server
+        /*
         Timer timer = Timer.builder("crypto.price.save.redis.time")
                 .description("Time taken to save crypto price updates to redis")
                 .register(meterRegistry);
-        timer.record(processingTime, TimeUnit.MILLISECONDS);    
+        timer.record(processingTime, TimeUnit.MILLISECONDS);
+        */
     }
 
 
