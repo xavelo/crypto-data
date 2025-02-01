@@ -17,11 +17,11 @@ import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 
 @Service
-public class PriceUpdatesService implements PriceRepository {
+public class PriceUpdatesService {
     
     private static final Logger logger = LoggerFactory.getLogger(PriceUpdatesService.class);
 
-    private PriceService priceService;
+    private final PriceRepository priceRepository;
     private ObjectMapper objectMapper;
     private MeterRegistry meterRegistry;
     private KafkaTemplate<String, String> kafkaTemplate;
@@ -29,11 +29,11 @@ public class PriceUpdatesService implements PriceRepository {
 
     private static final int MAX_RETRIES = 3; 
 
-    public PriceUpdatesService(PriceService priceService,
+    public PriceUpdatesService(PriceRepository priceRepository,
                                ObjectMapper objectMapper,
                                MeterRegistry meterRegistry,
                                KafkaTemplate kafkaTemplate) {
-        this.priceService = priceService;
+        this.priceRepository = priceRepository;
         this.objectMapper = objectMapper;
         this.meterRegistry = meterRegistry;
         this.kafkaTemplate = kafkaTemplate;
@@ -53,7 +53,7 @@ public class PriceUpdatesService implements PriceRepository {
                 Price price = objectMapper.readValue(record.value(), Price.class);
                 // simulate errors to test retry mechanism and observability
                 //simulateUnreliableApiCall(0);
-                priceService.savePriceUpdate(price);
+                priceRepository.savePriceUpdate(price);
 
                 long processingTime = (System.nanoTime() - startTime) / 1_000_000; // Convert to milliseconds
                 logger.info("crypto.price.processing.time: {}ms", processingTime);
@@ -70,7 +70,7 @@ public class PriceUpdatesService implements PriceRepository {
                 retryCounter.increment(); // Increment the retry counter
                 logger.error("Attempt {}: error {} processing record {}", attempt, e.getMessage(), record);
                 if (attempt >= MAX_RETRIES) {
-                    sendToDLQ(record); // Send to DLQ after max retries
+                    //TODO send to DLQ
                 } else {
                     // Exponential backoff delay
                     try {
@@ -82,17 +82,6 @@ public class PriceUpdatesService implements PriceRepository {
             }
         }
 
-    }
-
-    private void sendToDLQ(ConsumerRecord<String, String> originalRecord) {
-        ConsumerRecord<String, String> dlqRecord = new ConsumerRecord<>(
-            "crypto-price-updates-topic-dlq",
-            originalRecord.partition(),
-            originalRecord.offset(),
-            originalRecord.key(),
-            originalRecord.value()
-        );
-        kafkaTemplate.send(dlqRecord.topic(), dlqRecord.key(), dlqRecord.value());
     }
 
     private void simulateUnreliableApiCall(int errorPercentage) {

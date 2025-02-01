@@ -1,6 +1,6 @@
 package com.xavelo.crypto.infrastructure.in.api;
 
-import com.xavelo.crypto.application.price.PriceService;
+import com.xavelo.crypto.domain.repository.PriceRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,10 +21,10 @@ public class DataController {
     @Value("${HOSTNAME:unknown}")
     private String podName;
 
-    private final PriceService priceService;
+    private final PriceRepository priceRepository;
 
-    public DataController(PriceService priceService) {
-        this.priceService = priceService;
+    public DataController(PriceRepository priceRepositorye) {
+        this.priceRepository = priceRepositorye;
     }
 
     @GetMapping("/ping")
@@ -40,37 +40,37 @@ public class DataController {
 
     @GetMapping("/prices/count")
     public ResponseEntity<Long> count() {
-        long priceUpdatesCount = priceService.getPriceUpdatesCount();
+        long priceUpdatesCount = priceRepository.getPriceUpdatesCount();
         return ResponseEntity.ok(priceUpdatesCount);
     }
 
     @GetMapping("/prices/count/{coin}")
     public ResponseEntity<Long> countByCoin(@PathVariable String coin) {
-        long priceUpdatesCount = priceService.getPriceUpdatesCountByCoin(coin);
+        long priceUpdatesCount = priceRepository.getPriceUpdatesCountByCoin(coin);
         return ResponseEntity.ok(priceUpdatesCount);
     }
 
     @GetMapping("/prices/count/{coin}/{range}/{unit}")
     public ResponseEntity<Long> getPriceUpdatesCountByCoinInRange(@PathVariable String coin, @PathVariable int range, @PathVariable String unit) {
-        long priceUpdatesCount = priceService.getPriceUpdatesCountByCoin(coin);
+        long priceUpdatesCount = priceRepository.getPriceUpdatesCountByCoin(coin);
         return ResponseEntity.ok(priceUpdatesCount);
     }
 
     @GetMapping("/price/{coin}")
     public ResponseEntity<Price> getPriceByCoin(@PathVariable String coin) {
-        Price price = priceService.getLastPriceByCoin(coin);
+        Price price = priceRepository.getLastPriceByCoin(coin);
         return ResponseEntity.ok(price);
     }
 
     @GetMapping("/prices/{coin}")
     public ResponseEntity<List<Price>> getPricesByCoin(@PathVariable String coin) {
-        List<Price> prices = priceService.getPriceUpdatesByCoin(coin);
+        List<Price> prices = priceRepository.getPriceUpdatesByCoin(coin);
         return ResponseEntity.ok(prices);
     }
 
     @GetMapping("/price/{coin}/average/{range}/{unit}")
     public ResponseEntity<BigDecimal> getAveragePriceByCoinInRange(@PathVariable String coin, @PathVariable int range, @PathVariable String unit) {
-        BigDecimal average = priceService.getAveragePriceByCoinInRange(coin, range, unit);
+        BigDecimal average = priceRepository.getAveragePriceByCoinInRange(coin, range, unit);
         return ResponseEntity.ok(average);
     }
 

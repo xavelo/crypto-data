@@ -2,18 +2,14 @@ package com.xavelo.crypto.application.dashboard;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 
-import com.xavelo.crypto.application.price.PriceService;
 import com.xavelo.crypto.domain.repository.PriceRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.xavelo.crypto.domain.model.Price;
-import com.xavelo.crypto.domain.model.Trend;
-import com.xavelo.crypto.domain.model.Coin;
+
 
 @Component
 public class DashboardServiceImpl implements DashboardService {

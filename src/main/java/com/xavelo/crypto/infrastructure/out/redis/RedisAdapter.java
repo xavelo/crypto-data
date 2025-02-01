@@ -12,6 +12,7 @@ import java.util.Date;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import com.xavelo.crypto.domain.repository.PriceRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -21,10 +22,10 @@ import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 
 import com.xavelo.crypto.domain.model.Price;
-import com.xavelo.crypto.application.price.PriceService;
+
 
 @Component
-public class RedisAdapter implements PriceService {
+public class RedisAdapter implements PriceRepository {
     
     private static final Logger logger = LoggerFactory.getLogger(RedisAdapter.class);
 
