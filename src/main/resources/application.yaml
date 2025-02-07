@@ -40,6 +40,6 @@ logging:
     org.apache.kafka.clients: INFO
     com.xavelo.crypto.adapter.in.kafka.CryptoDataListener: DEBUG
     com.xavelo.crypto.adapter.in.kafka.CryptoPriceUpdatesListener: DEBUG
-    com.xavelo.crypto.adapter.out.redis.RedisAdapter: DEBUG
+    com.xavelo.crypto.adapter.out.redis.RedisAdapter: INFO
 
   
