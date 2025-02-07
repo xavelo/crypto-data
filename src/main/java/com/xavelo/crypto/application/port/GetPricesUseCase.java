@@ -1,12 +1,12 @@
 package com.xavelo.crypto.application.port;
 
-import com.xavelo.crypto.adapter.out.mongo.PriceDocument;
-
-import java.math.BigDecimal;
-import java.util.List;
+import com.xavelo.crypto.domain.model.Price;
 
 public interface GetPricesUseCase {
 
+    Price getLatestPrice(String coin);
+
+    /*
     long getPricesCount();
 
     long getPricesCount(String coin);
@@ -14,5 +14,5 @@ public interface GetPricesUseCase {
     List<PriceDocument> getPricesByCoinLastHours(String coin, int hours);
 
     BigDecimal getAveragePriceByCoinLastHours(String coin, int hours);
-
+    */
 }

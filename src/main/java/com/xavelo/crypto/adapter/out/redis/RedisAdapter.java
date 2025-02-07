@@ -54,30 +54,11 @@ public class RedisAdapter implements PriceRepository {
 
     @Override
     public Price getLatestPrice(String coin) {
+        logger.info("-> getLatestPrice {}", coin);
         String key = "last_price:" + coin;
         String json = redisTemplate.opsForValue().get(key);
+        logger.info("<- getLatestPrice {}", json);
         return json != null ? deserializePrice(json) : null;
     }
-    
-    private long getStartTime(long now, int range, String unit) {
-        long startTime;
-        switch (unit) {
-            case "s":
-                startTime = now - range * 1000; // Multiply by 1000 for seconds
-                break;
-            case "m":
-                startTime = now - range * 60 * 1000; // Multiply by 60, then by 1000 for minutes
-                break;
-            case "h":
-                startTime = now - range * 3600 * 1000; // Multiply by 3600, then by 1000 for hours
-                break;
-            case "d":
-                startTime = now - range * 86400 * 1000; // Multiply by 86400, then by 1000 for days
-                break;
-            default:
-                throw new RuntimeException("Invalid unit: " + unit);
-        }
-        return startTime;
-    }   
 
 }
