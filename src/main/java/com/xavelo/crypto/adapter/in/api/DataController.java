@@ -1,5 +1,6 @@
 package com.xavelo.crypto.adapter.in.api;
 
+import com.xavelo.crypto.application.port.CountPriceUpdatesUseCase;
 import com.xavelo.crypto.application.port.GetCoinDataUseCase;
 import com.xavelo.crypto.application.port.GetPricesUseCase;
 import com.xavelo.crypto.domain.model.CoinData;
@@ -27,11 +28,15 @@ public class DataController {
     private final GetPricesUseCase getPricesUseCase;
 
     @Autowired
+    private final CountPriceUpdatesUseCase countPriceUpdatesUseCase;
+
+    @Autowired
     private final GetCoinDataUseCase getCoinDataUseCase;
 
-    public DataController(GetPricesUseCase getPricesUseCase, GetCoinDataUseCase getCoinDataUseCase) {
+    public DataController(GetPricesUseCase getPricesUseCase, GetCoinDataUseCase getCoinDataUseCase, CountPriceUpdatesUseCase countPriceUpdatesUseCase) {
         this.getPricesUseCase = getPricesUseCase;
         this.getCoinDataUseCase = getCoinDataUseCase;
+        this.countPriceUpdatesUseCase = countPriceUpdatesUseCase;
     }
 
     @GetMapping("/ping")
@@ -52,6 +57,13 @@ public class DataController {
         return ResponseEntity.ok(coinData);
     }
 
+    @GetMapping("/prices/count/{coin}")
+    public ResponseEntity<Long> countByCoin(@PathVariable String coin) {
+        long priceUpdatesCount = countPriceUpdatesUseCase.countPriceUpdates(coin);
+        return ResponseEntity.ok(priceUpdatesCount);
+    }
+
+
     /*
     @GetMapping("/prices/count")
     public ResponseEntity<Long> count() {
@@ -59,11 +71,7 @@ public class DataController {
         return ResponseEntity.ok(priceUpdatesCount);
     }
 
-    @GetMapping("/prices/count/{coin}")
-    public ResponseEntity<Long> countByCoin(@PathVariable String coin) {
-        long priceUpdatesCount = priceRepository.getPriceUpdatesCountByCoin(coin);
-        return ResponseEntity.ok(priceUpdatesCount);
-    }
+
 
     @GetMapping("/prices/count/{coin}/{range}/{unit}")
     public ResponseEntity<Long> getPriceUpdatesCountByCoinInRange(@PathVariable String coin, @PathVariable int range, @PathVariable String unit) {

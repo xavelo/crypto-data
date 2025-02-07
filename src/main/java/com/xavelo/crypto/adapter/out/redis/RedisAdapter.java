@@ -14,6 +14,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 import static com.xavelo.crypto.domain.model.serdes.PriceSerializer.deserializePrice;
 
 
@@ -53,6 +55,12 @@ public class RedisAdapter implements PriceRepository, CoinDataRepository {
                 .register(meterRegistry);
         timer.record(processingTime, TimeUnit.MILLISECONDS);
         */
+    }
+
+    @Override
+    public long countPriceUpdates(String coin) {
+        String zsetKey = "prices:" + coin;
+        return Optional.ofNullable(stringRedisTemplate.opsForZSet().zCard(zsetKey)).orElse(0L);
     }
 
     @Override
