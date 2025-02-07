@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: crypto-data-deployment
   annotations:
-    commitID: "fad508020a5dc9a8dca8a8d19f50e076497ce1ad"
+    commitID: "08ab74f2852fa16e11dff235a5ef54e0a2ee0134"
 spec:
   #replicas: 4
   selector:
@@ -21,11 +21,11 @@ spec:
     spec:
       containers:
         - name: crypto-data
-          image: 'xavelo/crypto-data:fad508020a5dc9a8dca8a8d19f50e076497ce1ad'
+          image: 'xavelo/crypto-data:08ab74f2852fa16e11dff235a5ef54e0a2ee0134'
           ports:
             - containerPort: 80
           resources:
             requests:
-              cpu: "250m"  # Request 250 millicores (0.25 CPU)
+              cpu: "250m" # Request 250 millicores (0.25 CPU)
             limits:
-              cpu: "500m"  # Limit at 500 millicores (0.5 CPU)
+              cpu: "500m" # Limit at 500 millicores (0.5 CPU)
