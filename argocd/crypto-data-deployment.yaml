@@ -24,3 +24,8 @@ spec:
           image: 'xavelo/crypto-data:fad508020a5dc9a8dca8a8d19f50e076497ce1ad'
           ports:
             - containerPort: 80
+          resources:
+            requests:
+              cpu: "250m"  # Request 250 millicores (0.25 CPU)
+            limits:
+              cpu: "500m"  # Limit at 500 millicores (0.5 CPU)
