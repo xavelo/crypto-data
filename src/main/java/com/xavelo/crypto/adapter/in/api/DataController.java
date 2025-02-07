@@ -1,4 +1,4 @@
-package com.xavelo.crypto.infrastructure.in.api;
+package com.xavelo.crypto.adapter.in.api;
 
 import com.xavelo.crypto.domain.repository.PriceRepository;
 import org.apache.logging.log4j.LogManager;

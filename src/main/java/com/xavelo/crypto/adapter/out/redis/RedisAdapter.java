@@ -1,4 +1,4 @@
-package com.xavelo.crypto.infrastructure.out.redis;
+package com.xavelo.crypto.adapter.out.redis;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -13,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import com.xavelo.crypto.domain.repository.PriceRepository;
+import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -25,17 +26,13 @@ import com.xavelo.crypto.domain.model.Price;
 
 
 @Component
+@AllArgsConstructor
 public class RedisAdapter implements PriceRepository {
     
     private static final Logger logger = LoggerFactory.getLogger(RedisAdapter.class);
 
     private RedisTemplate<String, String> redisTemplate;
     private final MeterRegistry meterRegistry;
-    
-    public RedisAdapter(RedisTemplate<String, String> redisTemplate, MeterRegistry meterRegistry) {
-        this.redisTemplate = redisTemplate;   
-        this.meterRegistry = meterRegistry;     
-    }
 
     @Override
     public void savePriceUpdate(Price price) {

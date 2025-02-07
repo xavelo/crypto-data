@@ -1,4 +1,4 @@
-package com.xavelo.crypto.infrastructure.out.mongo;
+package com.xavelo.crypto.adapter.out.mongo;
 
 import com.xavelo.crypto.domain.model.AveragePrice;
 import org.springframework.data.domain.Sort;

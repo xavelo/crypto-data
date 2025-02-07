@@ -22,15 +22,6 @@ spring:
     redis:
       host: redis-service.redis.svc.cluster.local
       port: 6379
-  #influx:
-  #  url: http://influxdb-service.default.svc.cluster.local:8086
-  #  bucket: crypto
-  #  org: xavelo.com
-  #  token: rRfGF0-quQ8bkjlXxaS_qzCK0VVG_-jj3h47AnndP05D_-3ElKhdI86gnyzGiikBZPn6fDt-g4oF2577BJ4RKA==
-  #metrics:
-  #  export:
-  #    prometheus:
-  #      enabled: true
   web:
     exposure:
       include: "*"
@@ -47,7 +38,8 @@ logging:
   level:
     org.apache.kafka.clients.consumer.internals.ConsumerCoordinator: INFO
     org.apache.kafka.clients: INFO
-    com.xavelo.crypto.infrastructure.in.kafka.CryptoDataListener: DEBUG
-    com.xavelo.crypto.infrastructure.in.kafka.CryptoPriceUpdatesListener: DEBUG
+    com.xavelo.crypto.adapter.in.kafka.CryptoDataListener: DEBUG
+    com.xavelo.crypto.adapter.in.kafka.CryptoPriceUpdatesListener: DEBUG
+    com.xavelo.crypto.adapter.out.redis.RedisAdapter: DEBUG
 
   

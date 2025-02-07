@@ -1,7 +1,8 @@
-package com.xavelo.crypto.application.data;
+package com.xavelo.crypto.application.service;
 
-import com.xavelo.crypto.infrastructure.out.mongo.PriceDocument;
-import com.xavelo.crypto.infrastructure.out.mongo.PriceRepository;
+import com.xavelo.crypto.adapter.out.mongo.PriceDocument;
+import com.xavelo.crypto.adapter.out.mongo.PriceRepository;
+import com.xavelo.crypto.application.port.GetPricesUseCase;
 import com.xavelo.crypto.domain.model.AveragePrice;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -15,9 +16,9 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Component
-public class DataServiceImpl implements DataService {
+public class GetPricesService implements GetPricesUseCase {
 
-    private static final Logger logger = LogManager.getLogger(DataServiceImpl.class);
+    private static final Logger logger = LogManager.getLogger(GetPricesService.class);
 
     @Autowired
     PriceRepository priceRepository;

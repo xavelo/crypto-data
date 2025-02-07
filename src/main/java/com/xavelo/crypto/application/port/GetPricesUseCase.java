@@ -1,11 +1,11 @@
-package com.xavelo.crypto.application.data;
+package com.xavelo.crypto.application.port;
 
-import com.xavelo.crypto.infrastructure.out.mongo.PriceDocument;
+import com.xavelo.crypto.adapter.out.mongo.PriceDocument;
 
 import java.math.BigDecimal;
 import java.util.List;
 
-public interface DataService {
+public interface GetPricesUseCase {
 
     long getPricesCount();
 
