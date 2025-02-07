@@ -67,14 +67,26 @@ public class RedisAdapter implements PriceRepository, CoinDataRepository {
     @Override
     public void saveCoinData(CoinData coinData) {
         long startTime = System.nanoTime();
-
         String key = "coin_data:" + coinData.getSymbol();
         String json = CoinDataSerializer.serializeCoinData(coinData);
         redisTemplate.opsForValue().set(key, json);
-
         long endTime = System.nanoTime();
         long processingTime = (endTime - startTime) / 1_000_000;
         logger.debug("coin.data.save.redis.time: {}ms", processingTime);
+    }
+
+    @Override
+    public  CoinData getCoinData(String coin) {
+        long startTime = System.nanoTime();
+        String key = "coin_data:" + coin;
+        String json = redisTemplate.opsForValue().get(key);
+        if (json == null) {
+           return null; // Or throw an exception if needed
+        }
+        long endTime = System.nanoTime();
+        long processingTime = (endTime - startTime) / 1_000_000;
+        logger.debug("coin.data.get.redis.time: {}ms", processingTime);
+        return CoinDataSerializer.deserializeCoinData(json);
     }
 
 }

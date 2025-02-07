@@ -6,4 +6,6 @@ public interface CoinDataRepository {
 
     void saveCoinData(CoinData coinData);
 
+    CoinData getCoinData(String coin);
+
 }

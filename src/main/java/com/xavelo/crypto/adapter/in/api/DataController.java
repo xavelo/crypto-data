@@ -1,6 +1,8 @@
 package com.xavelo.crypto.adapter.in.api;
 
+import com.xavelo.crypto.application.port.GetCoinDataUseCase;
 import com.xavelo.crypto.application.port.GetPricesUseCase;
+import com.xavelo.crypto.domain.model.CoinData;
 import com.xavelo.crypto.domain.model.Price;
 import com.xavelo.crypto.domain.repository.PriceRepository;
 import lombok.AllArgsConstructor;
@@ -24,8 +26,12 @@ public class DataController {
     @Autowired
     private final GetPricesUseCase getPricesUseCase;
 
-    public DataController(GetPricesUseCase getPricesUseCase) {
+    @Autowired
+    private final GetCoinDataUseCase getCoinDataUseCase;
+
+    public DataController(GetPricesUseCase getPricesUseCase, GetCoinDataUseCase getCoinDataUseCase) {
         this.getPricesUseCase = getPricesUseCase;
+        this.getCoinDataUseCase = getCoinDataUseCase;
     }
 
     @GetMapping("/ping")
@@ -38,6 +44,12 @@ public class DataController {
     public ResponseEntity<Price> getPriceByCoin(@PathVariable String coin) {
         Price price = getPricesUseCase.getLatestPrice(coin);
         return ResponseEntity.ok(price);
+    }
+
+    @GetMapping("/data/{coin}")
+    public ResponseEntity<CoinData> getDataByCoin(@PathVariable String coin) {
+        CoinData coinData = getCoinDataUseCase.getCoinData(coin);
+        return ResponseEntity.ok(coinData);
     }
 
     /*
