@@ -23,7 +23,7 @@ public class CryptoPriceUpdatesListener {
 
     @KafkaListener(topics = "crypto-price-updates-topic", groupId = "crypto-price-updates-group", containerFactory = "kafkaListenerContainerFactory")
     public void consume(ConsumerRecord<String, String> record, Acknowledgment acknowledgment) throws JsonProcessingException, InterruptedException {
-        logger.info("Received message: key {} - value {}", record.key(), record.value());        
+        logger.debug("Received message: key {} - value {}", record.key(), record.value());
         priceUpdatesService.process(record);
         acknowledgment.acknowledge();
     }

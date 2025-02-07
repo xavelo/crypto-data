@@ -46,7 +46,7 @@ public class RedisAdapter implements PriceRepository {
         redisTemplate.opsForValue().set("last_price:" + price.getCoin(), price.getPrice().toString() + ":" + price.getTimestamp().getTime() + ":" + price.getCurrency());
         long endTime = System.nanoTime();
         long processingTime = (endTime - startTime) / 1_000_000;
-        logger.info("crypto.price.save.redis.time: {}ms", processingTime);
+        logger.debug("crypto.price.save.redis.time: {}ms", processingTime);
         // Send metric to metrics server
         /*
         Timer timer = Timer.builder("crypto.price.save.redis.time")
