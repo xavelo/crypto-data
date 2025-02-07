@@ -3,7 +3,6 @@ package com.xavelo.crypto.adapter.in.kafka;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.xavelo.crypto.application.port.StorePriceUpdateUseCase;
-import com.xavelo.crypto.application.price.PriceUpdatesService;
 
 import com.xavelo.crypto.domain.model.Price;
 import lombok.AllArgsConstructor;
