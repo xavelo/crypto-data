@@ -1,6 +1,7 @@
 package com.xavelo.crypto.application.price;
 
 import com.xavelo.crypto.domain.repository.PriceRepository;
+import lombok.AllArgsConstructor;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +57,7 @@ public class PriceUpdatesService {
                 priceRepository.savePriceUpdate(price);
 
                 long processingTime = (System.nanoTime() - startTime) / 1_000_000; // Convert to milliseconds
-                logger.info("crypto.price.processing.time: {}ms", processingTime);
+                logger.debug("crypto.price.processing.time: {}ms", processingTime);
 
                 Timer timer = Timer.builder("crypto.price.processing.time")
                         .description("Time taken to process crypto price updates")
