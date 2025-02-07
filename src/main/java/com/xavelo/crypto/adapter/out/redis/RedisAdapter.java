@@ -2,6 +2,7 @@ package com.xavelo.crypto.adapter.out.redis;
 
 import com.xavelo.crypto.domain.model.CoinData;
 import com.xavelo.crypto.domain.model.Price;
+import com.xavelo.crypto.domain.model.serdes.CoinDataSerializer;
 import com.xavelo.crypto.domain.model.serdes.PriceSerializer;
 import com.xavelo.crypto.domain.repository.CoinDataRepository;
 import com.xavelo.crypto.domain.repository.PriceRepository;
@@ -67,19 +68,13 @@ public class RedisAdapter implements PriceRepository, CoinDataRepository {
     public void saveCoinData(CoinData coinData) {
         long startTime = System.nanoTime();
 
-//        String zsetKey = "prices:" + price.getCoin();
-//        String latestKey = "last_price:" + price.getCoin();
-//
-//        // Store the price in a sorted set (timestamp as score)
-//        String jsonValue = PriceSerializer.serializePrice(price);
-//        stringRedisTemplate.opsForZSet().add(zsetKey, jsonValue, price.getTimestamp().getTime());
-//
-//        // Store the latest price separately
-//        redisTemplate.opsForValue().set(latestKey, jsonValue);
-//
+        String key = "coin_data:" + coinData.getSymbol();
+        String json = CoinDataSerializer.serializeCoinData(coinData);
+        redisTemplate.opsForValue().set(key, json);
+
         long endTime = System.nanoTime();
         long processingTime = (endTime - startTime) / 1_000_000;
-        logger.debug("crypto.price.save.redis.time: {}ms", processingTime);
+        logger.debug("coin.data.save.redis.time: {}ms", processingTime);
     }
 
 }
