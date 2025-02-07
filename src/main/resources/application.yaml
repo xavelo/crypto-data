@@ -47,5 +47,6 @@ logging:
   level:
     org.apache.kafka.clients.consumer.internals.ConsumerCoordinator: INFO
     org.apache.kafka.clients: INFO
+    com.xavelo.crypto.infrastructure.in.kafka.CryptoDataListener: DEBUG
 
   
