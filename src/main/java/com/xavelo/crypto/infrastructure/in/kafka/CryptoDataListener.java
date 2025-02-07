@@ -13,7 +13,7 @@ public class CryptoDataListener {
 
     private static final Logger logger = LoggerFactory.getLogger(CryptoDataListener.class);
 
-    @KafkaListener(topics = "crypto-price-updates-topic", groupId = "crypto-price-updates-group", containerFactory = "kafkaListenerContainerFactory")
+    @KafkaListener(topics = "crypto-data-topic", groupId = "crypto-data-group", containerFactory = "kafkaListenerContainerFactory")
     public void consume(ConsumerRecord<String, String> record, Acknowledgment acknowledgment) throws JsonProcessingException, InterruptedException {
         logger.debug("Received message: key {} - value {}", record.key(), record.value());
         acknowledgment.acknowledge();
