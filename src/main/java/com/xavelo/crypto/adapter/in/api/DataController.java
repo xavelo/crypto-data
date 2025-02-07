@@ -6,6 +6,7 @@ import com.xavelo.crypto.domain.repository.PriceRepository;
 import lombok.AllArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,7 +14,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@AllArgsConstructor
 public class DataController {
 
     private static final Logger logger = LogManager.getLogger(DataController.class);
@@ -21,7 +21,12 @@ public class DataController {
     @Value("${HOSTNAME:unknown}")
     private String podName;
 
+    @Autowired
     private final GetPricesUseCase getPricesUseCase;
+
+    public DataController(GetPricesUseCase getPricesUseCase) {
+        this.getPricesUseCase = getPricesUseCase;
+    }
 
     @GetMapping("/ping")
     public ResponseEntity<String> ping() {

@@ -1,7 +1,9 @@
 package com.xavelo.crypto.adapter.out.redis;
 
+import com.xavelo.crypto.domain.model.CoinData;
 import com.xavelo.crypto.domain.model.Price;
 import com.xavelo.crypto.domain.model.serdes.PriceSerializer;
+import com.xavelo.crypto.domain.repository.CoinDataRepository;
 import com.xavelo.crypto.domain.repository.PriceRepository;
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.AllArgsConstructor;
@@ -16,7 +18,7 @@ import static com.xavelo.crypto.domain.model.serdes.PriceSerializer.deserializeP
 
 @Component
 @AllArgsConstructor
-public class RedisAdapter implements PriceRepository {
+public class RedisAdapter implements PriceRepository, CoinDataRepository {
     
     private static final Logger logger = LoggerFactory.getLogger(RedisAdapter.class);
 
@@ -59,6 +61,25 @@ public class RedisAdapter implements PriceRepository {
         String json = redisTemplate.opsForValue().get(key);
         logger.info("<- getLatestPrice {}", json);
         return json != null ? deserializePrice(json) : null;
+    }
+
+    @Override
+    public void saveCoinData(CoinData coinData) {
+        long startTime = System.nanoTime();
+
+//        String zsetKey = "prices:" + price.getCoin();
+//        String latestKey = "last_price:" + price.getCoin();
+//
+//        // Store the price in a sorted set (timestamp as score)
+//        String jsonValue = PriceSerializer.serializePrice(price);
+//        stringRedisTemplate.opsForZSet().add(zsetKey, jsonValue, price.getTimestamp().getTime());
+//
+//        // Store the latest price separately
+//        redisTemplate.opsForValue().set(latestKey, jsonValue);
+//
+        long endTime = System.nanoTime();
+        long processingTime = (endTime - startTime) / 1_000_000;
+        logger.debug("crypto.price.save.redis.time: {}ms", processingTime);
     }
 
 }
