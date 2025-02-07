@@ -8,11 +8,18 @@ spec:
     kind: Deployment
     name: crypto-data-deployment
   minReplicas: 1
-  maxReplicas: 10
+  maxReplicas: 4
   metrics:
     - type: Resource
       resource:
         name: cpu
         target:
           type: Utilization
-          averageUtilization: 99
+          averageUtilization: 50
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300  # Minimum time to wait before scaling down (default is 300s)
+      policies:
+        - type: Percent
+          value: 75   # Reduce by 75% of current replicas at a time
+          periodSeconds: 30  # Check every 30 seconds
