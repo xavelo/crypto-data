@@ -37,6 +37,8 @@ public class DataController {
         this.countPriceUpdatesUseCase = countPriceUpdatesUseCase;
     }
 
+    /*
+
     @GetMapping("/ping")
     public ResponseEntity<String> ping() {
         logger.info("hello from pod {}", podName);
@@ -49,9 +51,6 @@ public class DataController {
         return ResponseEntity.ok(coinData);
     }
 
-
-
-    /*
     @GetMapping("/prices/count/{coin}/{range}/{unit}")
     public ResponseEntity<Long> getPriceUpdatesCountByCoinInRange(@PathVariable String coin, @PathVariable int range, @PathVariable String unit) {
         long priceUpdatesCount = priceRepository.getPriceUpdatesCountByCoin(coin);
