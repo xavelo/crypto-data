@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@AllArgsConstructor
 public class PricesController {
 
     private static final Logger logger = LogManager.getLogger(PricesController.class);
@@ -29,6 +28,11 @@ public class PricesController {
 
     @Autowired
     private final CountPriceUpdatesUseCase countPriceUpdatesUseCase;
+
+    public PricesController(GetPricesUseCase getPricesUseCase, CountPriceUpdatesUseCase countPriceUpdatesUseCase) {
+        this.getPricesUseCase = getPricesUseCase;
+        this.countPriceUpdatesUseCase = countPriceUpdatesUseCase;
+    }
 
     @GetMapping("/ping")
     public ResponseEntity<String> ping() {
