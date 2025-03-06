@@ -43,34 +43,15 @@ public class DataController {
         return ResponseEntity.ok("hello from pod " + podName);
     }
 
-    @GetMapping("/price/{coin}")
-    public ResponseEntity<Price> getPriceByCoin(@PathVariable String coin) {
-        Price price = getPricesUseCase.getLatestPrice(coin);
-        return ResponseEntity.ok(price);
-    }
-
     @GetMapping("/data/{coin}")
     public ResponseEntity<CoinData> getDataByCoin(@PathVariable String coin) {
         CoinData coinData = getCoinDataUseCase.getCoinData(coin);
         return ResponseEntity.ok(coinData);
     }
 
-    @GetMapping("/prices/count/{coin}")
-    public ResponseEntity<Long> countByCoin(@PathVariable String coin) {
-        long priceUpdatesCount = countPriceUpdatesUseCase.countPriceUpdates(coin);
-        return ResponseEntity.ok(priceUpdatesCount);
-    }
 
 
     /*
-    @GetMapping("/prices/count")
-    public ResponseEntity<Long> count() {
-        long priceUpdatesCount = priceRepository.getPriceUpdatesCount();
-        return ResponseEntity.ok(priceUpdatesCount);
-    }
-
-
-
     @GetMapping("/prices/count/{coin}/{range}/{unit}")
     public ResponseEntity<Long> getPriceUpdatesCountByCoinInRange(@PathVariable String coin, @PathVariable int range, @PathVariable String unit) {
         long priceUpdatesCount = priceRepository.getPriceUpdatesCountByCoin(coin);
@@ -90,10 +71,6 @@ public class DataController {
     }
     */
 
-    @GetMapping("/test-error")
-    public ResponseEntity<String> testError() throws Exception {
-        throw new Exception("testing exceptino handler");
-    }
 
 }
 
