@@ -1,6 +1,6 @@
 package com.xavelo.crypto.application.service;
 
-import com.xavelo.crypto.application.port.StoreCoinDataUseCase;
+import com.xavelo.crypto.application.port.out.StoreCoinDataUseCase;
 import com.xavelo.crypto.domain.model.CoinData;
 import com.xavelo.crypto.domain.repository.CoinDataRepository;
 import lombok.AllArgsConstructor;

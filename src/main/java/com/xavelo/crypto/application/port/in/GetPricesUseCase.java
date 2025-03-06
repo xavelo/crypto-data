@@ -1,4 +1,4 @@
-package com.xavelo.crypto.application.port;
+package com.xavelo.crypto.application.port.in;
 
 import com.xavelo.crypto.domain.model.Price;
 

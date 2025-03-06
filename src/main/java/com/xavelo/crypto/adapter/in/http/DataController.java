@@ -1,12 +1,10 @@
-package com.xavelo.crypto.adapter.in.api;
+package com.xavelo.crypto.adapter.in.http;
 
-import com.xavelo.crypto.application.port.CountPriceUpdatesUseCase;
-import com.xavelo.crypto.application.port.GetCoinDataUseCase;
-import com.xavelo.crypto.application.port.GetPricesUseCase;
+import com.xavelo.crypto.application.port.in.CountPriceUpdatesUseCase;
+import com.xavelo.crypto.application.port.in.GetCoinDataUseCase;
+import com.xavelo.crypto.application.port.in.GetPricesUseCase;
 import com.xavelo.crypto.domain.model.CoinData;
 import com.xavelo.crypto.domain.model.Price;
-import com.xavelo.crypto.domain.repository.PriceRepository;
-import lombok.AllArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;

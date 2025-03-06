@@ -1,4 +1,4 @@
-package com.xavelo.crypto.application.port;
+package com.xavelo.crypto.application.port.out;
 
 import com.xavelo.crypto.domain.model.CoinData;
 

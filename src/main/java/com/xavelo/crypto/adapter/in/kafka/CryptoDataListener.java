@@ -2,7 +2,7 @@ package com.xavelo.crypto.adapter.in.kafka;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.xavelo.crypto.application.port.StoreCoinDataUseCase;
+import com.xavelo.crypto.application.port.out.StoreCoinDataUseCase;
 import com.xavelo.crypto.domain.model.CoinData;
 import lombok.AllArgsConstructor;
 import org.apache.kafka.clients.consumer.ConsumerRecord;

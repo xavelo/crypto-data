@@ -1,4 +1,4 @@
-package com.xavelo.crypto.application.port;
+package com.xavelo.crypto.application.port.in;
 
 public interface CountPriceUpdatesUseCase {
 

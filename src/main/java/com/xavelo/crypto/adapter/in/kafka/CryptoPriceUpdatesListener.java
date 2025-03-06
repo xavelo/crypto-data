@@ -2,7 +2,7 @@ package com.xavelo.crypto.adapter.in.kafka;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.xavelo.crypto.application.port.StorePriceUpdateUseCase;
+import com.xavelo.crypto.application.port.out.StorePriceUpdatePort;
 
 import com.xavelo.crypto.domain.model.Price;
 import lombok.AllArgsConstructor;
@@ -21,13 +21,13 @@ public class CryptoPriceUpdatesListener {
 
     private static final Logger logger = LoggerFactory.getLogger(CryptoPriceUpdatesListener.class);
 
-    private StorePriceUpdateUseCase storePriceUpdateUseCase;
+    private StorePriceUpdatePort storePriceUpdatePort;
 
     @KafkaListener(topics = "crypto-price-updates-topic", groupId = "crypto-price-updates-group", containerFactory = "kafkaListenerContainerFactory")
     public void consume(ConsumerRecord<String, String> record, Acknowledgment acknowledgment) throws JsonProcessingException, InterruptedException {
         logger.debug("Received message: key {} - value {}", record.key(), record.value());
         Price price = new ObjectMapper().readValue(record.value(), Price.class);
-        storePriceUpdateUseCase.storePriceUpdate(price);
+        storePriceUpdatePort.storePriceUpdate(price);
         acknowledgment.acknowledge();
     }
 
