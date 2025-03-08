@@ -22,7 +22,7 @@ public class GetPricesRedisAdapter implements GetPricesPort {
     private static final Logger logger = LoggerFactory.getLogger(GetPricesRedisAdapter.class);
 
     private RedisTemplate<String, String> redisTemplate;
-    private final StringRedisTemplate stringRedisTemplate; // Needed for ZSET operations
+    private final StringRedisTemplate stringRedisTemplate;
 
     private final MeterRegistry meterRegistry;
 
