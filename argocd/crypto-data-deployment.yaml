@@ -4,6 +4,9 @@ metadata:
   name: crypto-data-deployment
   annotations:
     commitID: "fe1cf2bb17c161740784b630dd9382c75e7502ff"
+    prometheus.io/scrape: "true"
+    prometheus.io/path: "/actuator/prometheus"
+    prometheus.io/port: "30011"
 spec:
   #replicas: 4
   selector:
