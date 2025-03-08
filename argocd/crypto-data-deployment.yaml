@@ -30,6 +30,6 @@ spec:
             - containerPort: 80
           resources:
             requests:
-              cpu: "250m" # Request 250 millicores (0.25 CPU)
+              cpu: "250m"
             limits:
-              cpu: "500m" # Limit at 500 millicores (0.5 CPU)
+              cpu: "500m"

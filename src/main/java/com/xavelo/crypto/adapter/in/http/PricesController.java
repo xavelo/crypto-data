@@ -3,6 +3,8 @@ package com.xavelo.crypto.adapter.in.http;
 import com.xavelo.crypto.application.port.in.CountPriceUpdatesUseCase;
 import com.xavelo.crypto.application.port.in.GetPricesUseCase;
 import com.xavelo.crypto.domain.model.Price;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.Metrics;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +28,8 @@ public class PricesController {
     @Autowired
     private final CountPriceUpdatesUseCase countPriceUpdatesUseCase;
 
+    private final Counter priceUpdateCounter = Metrics.counter("crypto.data.ping.counter");
+
     public PricesController(GetPricesUseCase getPricesUseCase, CountPriceUpdatesUseCase countPriceUpdatesUseCase) {
         this.getPricesUseCase = getPricesUseCase;
         this.countPriceUpdatesUseCase = countPriceUpdatesUseCase;
@@ -33,6 +37,7 @@ public class PricesController {
 
     @GetMapping("/ping")
     public ResponseEntity<String> ping() {
+        priceUpdateCounter.increment();;
         logger.info("hello from pod {}", podName);
         return ResponseEntity.ok("hello from pod " + podName);
     }
