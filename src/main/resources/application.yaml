@@ -3,6 +3,9 @@ spring:
     name: crypto-data
   kafka:
     bootstrap-servers: my-kafka-cluster-kafka-bootstrap.kafka.svc.cluster.local:9092
+    properties:
+      security.protocol: PLAINTEXT
+      socket.connection.setup.timeout.ms: 30000
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer

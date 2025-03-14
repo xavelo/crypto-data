@@ -37,7 +37,7 @@ public class PricesController {
 
     @GetMapping("/ping")
     public ResponseEntity<String> ping() {
-        priceUpdateCounter.increment();;
+        priceUpdateCounter.increment();
         logger.info("hello from pod {}", podName);
         return ResponseEntity.ok("hello from pod " + podName);
     }
